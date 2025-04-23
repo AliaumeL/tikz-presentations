@@ -1,3 +1,6 @@
+
+import tikz_presentations_aliaume
+
 def main():
     print("Hello from tikz-presentations!")
 
