@@ -10,10 +10,10 @@ RATIO = 16 / 9
 WIDTH = 20
 HEIGHT = WIDTH / RATIO
 TITLE = "Aliaume Lopez"
-LOCATION = "ENS Paris-Saclay"
-DATE = "2025-03-28"
+LOCATION = "Bordeaux"
+DATE = "2025-05-06"
 
-IS_DRAFT = False
+IS_DRAFT = True
 
 cAut = "A4"
 cWA  = "A3"
@@ -99,7 +99,13 @@ def preview_animation(anim):
     print("Compiling generated tex")
     os.system("xelatex preview.tex")
     print("Opening pdf viewer")
-    os.system("open preview.pdf")
+    # if osx, then open, else xdg-open
+    if os.name == "posix":
+        if os.uname().sysname == "Darwin":
+            os.system("open preview.pdf")
+        else:
+            # spawn and do not wait for the process
+            os.system("xdg-open preview.pdf &")
     print("DONE.")
 
 @dataclasses.dataclass
@@ -258,19 +264,22 @@ class TitleFrame:
         scope = pic.scope(yshift="3cm")
 
         
-        scope.node("Séminaires pour les élèves du département", 
-                   at=(0,0), anchor="center", font="\\Huge\\scshape", 
+        scope.node("Concours MCF Section 27", 
+                   at=(0,1.5), anchor="center", font="\\Huge\\scshape", 
+                   color="A4")
+        scope.node("Offre 251816",
+                   at=(0,0.5), anchor="center", font="\\huge\\scshape", 
                    color="A4")
 
-        scope.node("Largeur de clique",
+        scope.node("Logique Monadique du Second Ordre et Beaux Préordres",
                    at=(0,-1),
                    anchor="center", 
                    align="center",
                    color="A3",
-                   text_width="10cm",
+                   text_width="16cm",
                    font="\\Large\\scshape")
-        scope.node("et", at=(0,-1.5), anchor="center", font="\\Large\\scshape")
-        scope.node("Beaux Préordres", 
+        scope.node("pour les", at=(0,-1.5), anchor="center", font="\\Large\\scshape")
+        scope.node("Méthodes Formelles", 
                    color="A5",
                    at=(0,-2),
                    anchor="center",
@@ -279,12 +288,12 @@ class TitleFrame:
         if self.with_name:
             pic.draw((0,-1),   node("Aliaume Lopez", anchor="center", font="\\Large"))
             pic.draw((0,-1.5), node("Université de Varsovie", anchor="center"))
-            pic.draw((0,-3),   node(f"à l'{LOCATION}", anchor="center", font="\\Large"))
+            pic.draw((0,-3),   node(f"à {LOCATION}", anchor="center", font="\\Large"))
             pic.draw((0,-3.5), node(f"le {DATE}", anchor="center"))
             pic.draw((6, -2), node(r"\qrcode{https://www.irif.fr/~alopez/}"))
             pic.draw((6, -3.5), node(r"\url{https://www.irif.fr/~alopez/}"))
 
-            logos = ["uw.pdf", "zzs.png"]
+            logos = ["images/institutions/university_of_warsaw.pdf", "images/institutions/zigmunt_zaleski_stitching.png"]
             for i, logo in enumerate(logos):
                 pic.draw((-4 - 3 * i, -2), node(f"\\includegraphics[width=2cm]{{{logo}}}", anchor="center"))
 
