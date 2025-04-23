@@ -1,0 +1,22 @@
+# Continuous integration
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Enable caching
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+      - name: Run tests
+        run: uv run pytest tests

@@ -1,0 +1,9 @@
+[project]
+name = "tikz-presentations"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pytikz>=0.0.1",
+]
