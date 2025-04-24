@@ -1,0 +1,547 @@
+$schema: "./schemas/resume.schema.json"
+bibliography: list.bib
+name:
+  first: Aliaume
+  last: LOPEZ
+contact-info:
+  birth:
+    place: Paris 12
+    date: 27/12/1995
+  nationality: Français
+  email: ad.lopez@uw.edu.pl
+  homepage: https://www.irif.fr/~alopez
+  phone: +33 6 94 42 07 71
+  address:
+    street: Teofila Lenartowicza 16
+    postcode: 01-614, Varsovie
+    country: Pologne
+  social:
+    - name: linkedin
+      fontAwesome: faLinkedin
+      value: aliaume-lopez-b27810106
+      url: https://www.linkedin.com/in/aliaume-lopez-b27810106/
+    - name: github
+      fontAwesome: faGithub
+      value: AliaumeL
+      url: https://github.com/AliaumeL
+    - name: orcid
+      fontAwesome: faOrcid
+      value: 000-0002-4205-327X
+      url: https://orcid.org/0000-0002-4205-327X
+    - name: dblp
+      value: 195/5745.html
+      url: https://dblp.org/pid/195/5745.html
+      fontAwesome: aidblpSquare
+    - name: arxiv
+      value: lopez_a_3
+      url: https://arxiv.org/a/lopez_a_3.html
+      fontAwesome: aiarXiv
+education:
+  - start: "2023"
+    end: "présent"
+    level: postdoc
+    title: Post-Doctorat en Informatique
+    location: Université de Varsovie
+    extra: Sous la direction de Mikołaj Bojańczyk
+  - start: "2019"
+    end: "2023"
+    level: phd
+    phd: true
+    extra: Thèse soutenue le 12/09/2023
+    title: Doctorat en Informatique
+    location:
+      - long: Laboratoire Méthodes Formelles, École Normale Supérieure de Cachan, Université Paris-Saclay
+        short: LMF, ENS Paris-Saclay
+      - long: Institut de Recherche en Informatique Fondamentale, Université Paris-Cité
+        short: IRIF, Université Paris-Cité
+    subtitle: "First Order Preservation Theorems in Finite Model Theory: Locality, Topology and Limit Constructions"
+    shortsubtitle: Informatique Fondamentale
+    shortlocation:
+      - LMF, ENS Paris-Saclay
+      - IRIF, Université Paris-Cité
+    contract-start: "2019-09-01"
+    defense: "2023-09-12"
+    awards:
+      - title: E. W. Beth Dissertation Prize
+        date: 2024
+        url: http://folli.info/?page_id=74
+      - title: Ackermann Award
+        date: 2024
+        url: https://www.eacsl.org/ackermann-award/
+    keywords:
+      - Logique du premier ordre
+      - Théorie des modèles
+      - Topologie
+      - Théorème de préservation
+      - Catégories
+    supervisor:
+      - name: Jean Goubault-Larrecq
+        email: jgl@lmf.cnrs.fr
+        position: PREX, Laboratoire Méthodes Formelles, École Normale Supérieure Paris-Saclay
+      - name: Sylvain Schmitz
+        email: schmitz@irif.fr
+        position: PR, Institut de Recherche en Informatique Fondamentale, Université Paris-Cité
+    jury:
+      - name: Serenella Cerrito
+        email: serenella.cerrito@univ-evry.fr
+        position: Professeure des Universités, Université Paris Saclay, Univ EVRY, France
+      - name: Anuj Dawar
+        position: Professor, University of Cambridge
+        email: anuj.dawar@cl.cam.ac.uk
+      - name: Arnaud Durand
+        position: Professeur des Universités, Université Paris-Cité
+        email: durand@imj-prg.fr
+      - name: Patrice Ossona de Mendez
+        email: madezhi@free.fr
+        position: Chargé de Recherche, EHESS
+      - name: Daniela Petrisan
+        position: Maîtresse de Conférences, Université Paris-Cité
+        email: petrisan@irif.fr
+      - name: Luca Reggio
+        position: Senior Fellow Researcher, University College London
+        email: l.reggio@ucl.ac.uk
+  - date: "2018"
+    level: master
+    title: Agrégation de Mathématiques
+    subtitle: Option Informatique
+    extra: Classé 5ème sur 320 admis
+    location: École Normale Supérieure de Cachan
+  - start: "2017"
+    end: "2018"
+    level: master
+    title: Master de mathématiques
+    subtitle: Master de Formation à l’Enseignement Supérieur
+    extra: Mention très bien
+    location: École Normale Supérieure de Cachan
+  - start: "2016"
+    end: "2019"
+    level: master
+    title: Master d’informatique
+    subtitle: Master Parisien de Recherche en Informatique
+    extra: Mention très bien
+    location: École Normale Supérieure de Cachan
+    stage:
+      - start: Mars 2017
+        end: Juillet 2017
+        supervisor:
+          - name: Alex K. Simpson
+        title: Construction d’une théorie générale des sémantiques opérationnelles
+      - start: Mars 2019
+        end: Juillet 2019
+        supervisor:
+          - name: Sylvain Schmitz
+          - name: Jean Goubault-Larrecq
+        title: "Well-quasi-orders and graph invariants"
+  - start: "2015"
+    end: "2016"
+    level: licence
+    title: Licence d’informatique
+    extra: Mention très bien
+    location: École Normale Supérieure de Cachan
+  - start: "2015"
+    end: "2016"
+    level: licence
+    title: Licence de mathématiques
+    extra: Mention très bien
+    location: École Normale Supérieure de Cachan
+  - start: "2013"
+    end: "2015"
+    level: prepa
+    title: MPSI/MP$\star$
+    subtitle: Classe préparatoire aux grandes écoles
+    extra: Mention très bien
+    location: Lycée Joffre, Montpellier
+  - date: "2013"
+    level: bac
+    title: Baccalauréat scientifique
+    extra: Mention très bien
+    location: Lycée Georges Pompidou, Castelneau-le-Lez
+employment:
+  - start: "2023"
+    end: "2025"
+    contract: CDD à temps plein
+    title: Contrat Post-Doctoral
+    location: Université de Varsovie
+    extra: Sous la direction de Mikołaj Bojańczyk
+    description: |
+      Recherche théorique sur des langages de programmation minimalistes
+      manipulant des chaînes de caractères.
+      L’objectif est de comprendre leur expressivité,
+      de fournir des méthodes d’optimisation pour ces
+      programmes et de faire
+      le lien avec d’autres modèles de calculs.
+    description_en: |
+      Theoretical study of minimalist programming languages for string to string
+      transformations (expressivity, decidability, optimisation).
+  - start: "2019"
+    end: "2023"
+    contract: CDD à temps plein
+    title: Doctorant en Informatique avec charge d’enseignement
+    extra: Sous la direction de Jean Goubault-Larrecq et Sylvain Schmitz
+    location:
+      - École Normale Supérieure Paris-Saclay
+      - Université Paris Cité
+    description: |
+      Recherche sur les systèmes centrés sur les données d’un point de vue
+      très théorique.
+    description_en: |
+      Research on data-centric systems from a very theoretical point of view.
+  - start: "2020"
+    end: "2021"
+    contract: CDD à temps plein
+    title: Chargé d’Affaires - Développeur Fullstack
+    location:
+      - Direction Interministérielle du Numérique
+      - Autorité de Sûreté Nucléaire
+    description: |
+      Création d’une plateforme de collecte et d’analyse de documents publics
+      relatifs à la sûreté nucléaire et à la radioprotection
+      dans le cadre du programme
+      "Entrepreneur d’Intérêt Général"
+    description_en: |
+      Creation of a platform for collecting and analyzing public 
+      documents related to nuclear safety and radioprotection as 
+      part of the "Entrepreneur of General Interest" program.
+  - start: "2017"
+    end: "2019"
+    contract: Vacataire à temps partiel
+    title: Khôlleur de mathématiques
+    location:
+      - Institution Sainte Marie
+      - Lycée Lakanal
+  - start: Mars 2017
+    end: Juillet 2017
+    contract: Stage non rémunéré à temps plein
+    extra: Sous la direction d’Alex K. Simpson
+    title: Stage de recherche
+    location: University of Ljubljana, Slovénie
+    description: |
+      Création d’une méthode d’analyse de programmes
+      prenant en compte les "effets de bords",
+      qui sont essentiels dans les langages réels.
+    description_en: |
+      Creation of a method for analyzing programs
+      taking into account the "side effects",
+      which are essential in real languages.
+  - start: Juin 2015
+    end: Juillet 2015
+    contract: Stage non rémunéré à temps plein
+    extra: Sous la direction de Dan R. Ghica
+    title: Stage de recherche
+    location: University of Birmingham, Angleterre
+    description: |
+      Optimisation de circuits contenant des boucles
+      de rétro action.
+    description_en: |
+      Optimization of circuits containing feedback loops.
+  - start: "2015"
+    end: "2019"
+    contract: "Fonctionnaire Stagiaire"
+    title: "Normalien Élève"
+    location: "ENS Paris-Saclay"
+teaching:
+  - start: "2023"
+    end: "2024"
+    contract: Monitorat
+    equivTD: 24
+    location: Université de Varsovie
+    logo: "university_of_warsaw.pdf"
+    color: "A3"
+    courses:
+      - title: "TD Transducteurs"
+        equivTD: 24
+        language: Anglais
+        shortlevel: M1
+        level: M1 Étudiants en informatique
+        students: Entre dix et quinze étudiants
+        duties: "Création de sujets de TP et de devoirs maison"
+  - start: "2022"
+    end: "2023"
+    contract: Monitorat (CDSN)
+    equivTD: "60"
+    location: Université Paris Cité
+    logo: "universite_paris_cite.pdf"
+    color: "A2"
+    courses:
+      - title: TP de Programmation en Python
+        equivTD: "12"
+        language: Français
+        shortlevel: L1
+        level:
+          L1 Étudiants en licence Mathématiques et informatiques appliquées aux sciences
+          humaines et sociales
+        students: Environ une quinzaine d’étudiants
+        duties:
+          Surveillance d’examen, création et correction de "questions de cours"
+          hebdomadaires
+      - title: TP de Programmation en Java
+        equivTD: "12"
+        shortlevel: L1
+        language: Français
+        level: L1 Étudiants en licence d’informatique
+        students: Plus d’une vingtaine d’étudiants
+        duties:
+          Surveillance d’examens, participation à la relecture et mise à jour des
+          sujets de TP
+      - title: TP d’Introduction aux Systèmes d’Exploitation
+        equivTD: "24"
+        shortlevel: L1
+        language: Français
+        level: L1 Étudiants en licence d’informatique
+        students: Plus d’une vingtaine d’étudiants
+        duties: Surveillance d’examens, participation à la relecture des sujets de TP
+  - start: "2021"
+    end: "2022"
+    contract: Monitorat (CDSN)
+    equivTD: "60"
+    location: Université Paris Cité
+    logo: "universite_paris_cite.pdf"
+    color: "A2"
+    courses:
+      - title: TP de Programmation Fonctionnelle
+        equivTD: "24"
+        shortlevel: L3
+        language: Français
+        level: L3 Étudiants en licence d’informatique
+        students: Une petite vingtaine d’étudiants
+        duties: Jury dans les soutenances du projet de fin de cours
+      - title: TP/TD de Gestion de Projet
+        equivTD: "12"
+        language: Français
+        shortlevel: L2
+        level: L2 Étudiants en licence d’informatique
+        students: Une petite vingtaine d’étudiants
+        duties: Jury dans les soutenances du projet de fin de cours
+      - title: TP de Programmation Réseau
+        equivTD: "24"
+        shortlevel: L3
+        language: Français
+        level: L3 Étudiants en licence d’informatique
+        students: Une petite vingtaine d’étudiants
+        duties:
+          Jury dans les soutenances de projet, création d’un outil de "stress test"
+          pour les programmes des étudiants, disponible à cette adresse https://gaufre.informatique.univ-
+          paris-diderot.fr/lopeza/graphical-pr6-tester
+  - start: "2019"
+    end: "2020"
+    contract: Monitorat (CDSN)
+    location: École Normale Supérieure Paris-Saclay
+    logo: "universite_paris_saclay.pdf"
+    color: "D4"
+    equivTD: "48"
+    courses:
+      - title: TD de Complexité Avancée
+        equivTD: "24"
+        shortlevel: M1
+        language: Français
+        level: M1 Étudiants et élèves normaliens
+        students: Entre dix et quinze étudiants
+        duties:
+          Reprise des supports de TD, avec ajout et modification d’exercices Les
+          supports sont disponibles sur ma page web https://irif.fr/~alopez/enseignement.html#complexité-avancée
+      - title: TD de Programmation 1
+        equivTD: "24"
+        shortlevel: L3
+        language: Français
+        level: L3 Étudiants et élèves normaliens
+        students: Entre vingt et trente étudiants
+        duties:
+          Reprise des supports de TD, avec ajout et modification d’exercices Les
+          supports sont disponibles sur ma page web https://irif.fr/~alopez/enseignement.html#programmation-1
+supervision:
+  - start: "2024"
+    title: "Research Internship"
+    location: "Université de Varsovie"
+    student:
+      - Arnav Garg
+      - Ojas Maheshwari
+responsabilities:
+  - start: "2019"
+    end: "présent"
+    title: Peer Reviewer
+    position: A* conferences
+  - date: "2025"
+    title: Workshop Autoboz
+    position: Steering Committee
+  - date: "2024"
+    title: Workshop Autoboz
+    position: Co-Organisateur
+    url: https://autoboz.org/2024
+  - start: "2022"
+    end: "2023"
+    title: Séminaire Automates à l’IRIF
+    position: Co-Organisateur
+  - start: "2021"
+    end: "2022"
+    title: IDeA
+    position: Co-créateur
+  - start: "2017"
+    end: "2019"
+    title: Association Pirat’ENS
+    position: Secrétaire
+skills:
+  - title: Transverses
+    title_en: Transversal
+    values:
+      - Synthèse
+      - Présentation orale
+      - Gestion de projet
+    values_en:
+      - Synthesis
+      - Oral presentation
+      - Project management
+  - title: Informatique
+    title_en: Computer Science
+    values:
+      - Méthodes formelles
+      - Logique
+    values_en:
+      - Formal methods
+      - Logic
+  - title: Programmation
+    title_en: Programming
+    values:
+      - Frontend
+      - Backend
+      - Dev/Ops
+      - Système
+      - Dataviz
+    values_en:
+      - Frontend
+      - Backend
+      - Dev/Ops
+      - System
+      - Dataviz
+awards:
+  - title: Ackermann Award
+    type: dissertation
+    date: 2024
+    organisation: EACSL
+    url: https://www.eacsl.org/ackermann-award/
+    description: The Ackermann Award is the EACSL Outstanding Dissertation Award for Logic in Computer Science.
+  - title: E.W. Beth Dissertation Prize
+    date: 2024
+    type: dissertation
+    organisation: FoLLI
+    url: http://folli.info/?page_id=74
+    description: |
+      Since 1998, the Association for Logic, Language, and Information (FoLLI) has 
+      been awarding the annual E.W. Beth Dissertation Prize to outstanding Ph.D. 
+      dissertations in Logic, Language, and Information, with financial support of the E.W. Beth Foundation.
+languages:
+  - language: Français
+    level: native
+  - language: Anglais
+    level: fluent
+  - language: Polonais
+    level: beginner
+  - language: Allemand
+    level: beginner
+interventions:
+  - title: "Rejoindre l’administration publique avec un doctorat"
+    date: "2022-05-18"
+    location: Département informatique, ENS Paris-Saclay
+    url: https://lmf.cnrs.fr/deptinfo-ens/Seminaires/
+  - title: "Table ronde « Carrières des docteurs »"
+    date: "2022-11-30"
+    location: "CARaDOC, Centrale Supélec, Gif-sur-Yvette"
+ecoles:
+  - title: "Categories for Automata and Language Theory (25141)"
+    location: "Schloss Dagstuhl, Allemagne"
+    start: "2025-03-30"
+    end: "2025-04-04"
+    duration: "25h"
+    url: https://www.dagstuhl.de/25141
+    description: École d’hiver de recherche sur les liens entre catégories et automates.
+  - title: "Finite and Algorithmic Model Theory"
+    location: "Les Houches, France"
+    start: 2025-05-25
+    end: 2025-05-30
+    duration: "25h"
+    url: https://fmt25.labri.fr/
+    description: |
+      École d’hiver de recherche théorie des modèles finis.
+  - title: "Logique, bases de données et complexité"
+    location: "CIRM, Luminy, France"
+    start: 2022-02-14
+    end: 2022-02-18
+    duration: "25h"
+    url: https://conferences.cirm-math.fr/2688.html
+    description: |
+      École d’hiver de recherche en logique, bases de données et complexité.
+  - title: "Les mathématiques discrètes et la logique: des mathématiques à l’informatique"
+    start: 2023-01-16
+    end: 2023-01-20
+    location: "CIRM, Luminy, France"
+    duration: "25h"
+    url: https://conferences.cirm-math.fr/2758.html
+    description: |
+      École d’hiver de recherche en mathématiques discrètes et logique.
+  - title: "Rencontres GT DAAL"
+    start: 2022-03-28
+    end: 2022-03-28
+    location: "INRIA Lille, France"
+    url: https://gt-daal.lis-lab.fr/lille.html
+    description: |
+      Rencontre du groupe de travail DAAL, avec présentation
+      des travaux de recherche.
+    duration: "8h"
+  - title: "WQO-BQO: What is up?"
+    start: "2023-02-21"
+    end: "2023-02-23"
+    location: "Université Claude Bernard, Lyon, France"
+    url: http://math.univ-lyon1.fr/~pouzet/wqobqo/
+    description: |
+      Workshop sur les ordres bien quasi ordonnés.
+    duration: "15h"
+  - title: "ANR BraVAS Project Meeting"
+    location: "LMF, Paris-Saclay, France"
+    start: 2022-04-11
+    end: 2022-04-12
+    duration: "15h"
+    description: |
+      Réunion du projet ANR BraVAS avec présentation des travaux
+      de recherche.
+  - title: "Finite and algorithmic model theory (22051)"
+    start: 2022-01-31
+    end: 2022-02-04
+    location: "Schloss Daghstuhl, Allemagne"
+    url: https://www.dagstuhl.de/seminars/seminar-calendar/seminar-details/22051
+    duration: "25h"
+    description: |
+      École d’hiver de recherche théorie des modèles finis.
+formations:
+  - title: "Langues étrangères et interculturalités"
+    description: "Rédiger un article scientifique en anglais : les règles, le style, le vocabulaire"
+    start: 2020-01-07
+    end: février 2020-02-07
+    location: ENS Paris-Saclay, France
+    duration: "12h"
+  - title: "Ethics and STICs"
+    start: 2020-02-01
+    end: 2020-02-29
+    location: "en ligne, Université Paris-Saclay"
+    duration: "12h"
+    description: |
+      Introduction à l’éthique de la
+      recherche en informatique
+  - title: "Secnum Académie"
+    date: 2020-02-08
+    location: "en ligne, ANSSI"
+    duration: "6h"
+    description: |
+      Introduction à la sécurité informatique
+  - title: "Le Doct’ilien"
+    location: "Université Paris-Saclay, France"
+    duration: "11h"
+    description: |
+      Vulgarisation scientifique dans le cadre d’un Festival.
+  - title: "CARaDOC"
+    location: "online"
+    url: https://ens-paris-saclay.fr/agenda/caradoc-phd-career-fair
+    duration: "9h"
+    start: 2020-11-17
+    end: 2020-11-18
+    description: |
+      Événement de rencontre entre doctorants et
+      entreprises.

@@ -23,6 +23,11 @@ import random
 import dataclasses
 from typing import Literal, Generator, Callable, List, Union, Tuple, Optional
 
+with open("./data/aliaume-cv.yaml", "r") as stream:
+    try:
+        CV = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
 
 @dataclasses.dataclass
 class Bibliometrie:
@@ -196,17 +201,263 @@ class QuiSuisJe:
     def __iter__(self):
         yield (0, self)
 
+@dataclasses.dataclass
+class ExtraTeachingPower:
+    def draw(self, pic):
+        extras = [
+            { "title": "Agrégation Math. Info.", "color": "D2" },
+            { "title": "Développeur Fullstack",  "color": "D2" },
+            { "title": "Auto-hébergement",       "color": "D2" },
+            { "title": "Encadrement (2 mois, L2)", "color": "D2" },
+        ]
+
+        logos = ["./images/software/docker.png",
+                 "./images/software/linux.png",
+                 "./images/software/yunohost.png",
+                 "./images/institutions/autorite_surete_nucleaire.jpg"
+                 ]
+
+        for i,extras in enumerate(extras):
+            pic.node(extras["title"],
+                     at=(0,-i*0.7),
+                     font="\\scshape",
+                     rounded_corners="2mm",
+                     draw=extras["color"],
+                     fill=f"{extras['color']}hint",
+                     anchor="north west",
+                     text_width="5cm",
+                     )
+
+        grid = [ 
+            (6,-1),
+            (8,-1),
+            (6,-2.3),
+            (8,-2.3),
+        ]
+        for logo,pos in zip(logos,grid):
+            (x,y) = pos
+            pic.node(r"\includegraphics[width=1cm]{"+logo+"}",
+                     at=(x,y + 0.2),
+                     anchor="center",
+                     fill="white",
+                     )
+
+
+    def __iter__(self):
+        yield (0, ExtraTeachingPower())
+
+@dataclasses.dataclass
+class TeachingDuties:
+    fullsize : bool = False
+    def draw(self, pic):
+        data = CV["teaching"] 
+
+        scope = pic.scope(xshift="-9cm", yshift="4cm")
+        scope.node("Enseignements Effectués",
+                   at=(4.5,0.7),
+                   font="\\bfseries\\scshape",
+                   )
+
+        tothours = sum(int(cours["equivTD"]) for duty in data for cours in duty["courses"])
+
+        if self.fullsize:
+            scope.node(r"Total~: " + str(tothours) + r"h~~",
+                       at=(8,-6.3),
+                       align="right",
+                       anchor="east",
+                       font="\\bfseries\\scshape",
+                       )
+
+        count = 0
+        for duty in data:
+            location = duty["location"]
+            cstart = count
+            cend = cstart + len(duty["courses"]) - 1
+            locationy = -(cstart + (cend - cstart) / 2) * 0.7
+            uprighty  = -cstart * 0.7 + 0.3
+            downlefty = -cend * 0.7 - 0.3
+            scope.draw((0, uprighty),
+                       rectangle((9, downlefty)),
+                        fill=f"{duty['color']}hint",
+                       )
+
+            if self.fullsize:
+                scope.node(location + r"\newline" + duty["start"] + r" -- " + duty["end"],
+                           at=(9,locationy),
+                           text_width="6cm",
+                           font="\\bfseries",
+                           anchor="west",)
+                scope.node(r"\includegraphics[width=1cm]{./images/institutions/" + duty["logo"] + "}",
+                           at=(15,locationy),
+                           anchor="west",
+                           fill="white",
+                           )
+            for cours in duty["courses"]:
+                title = cours["title"]
+                hours = cours["equivTD"]
+                level = cours["shortlevel"]
+                
+                y = - count * 0.7
+                count += 1
+
+               
+
+                scope.node(title,
+                           at=(0,y),
+                           anchor="west",
+                           text_width="7cm",)
+                scope.node(f"{hours}h",
+                           at=(7,y),
+                           anchor="west",
+                           text_width="1cm",)
+                scope.node(level,
+                           at=(8,y),
+                           anchor="west",
+                           text_width="1cm",)
+
+
+
+
+
+    def __iter__(self):
+        yield (0, TeachingDuties())
+
+
+@dataclasses.dataclass
+class TeachingNeeds:
+    detailed: bool = False
+    def draw(self, pic):
+
+        besoins = [
+          { "title": "Informatique Théorique",
+            "cours": ["Mathématiques", "Automates", "Complexité", "Algorithmique", "Logique"],
+            "confidence": 3,
+          },
+          { "title": "Programmation",
+            "cours": ["Génie Logiciel", "Impérative", "Fonctionnelle", "Système", "Objet", "Web"],
+            "confidence": 3,
+          },
+          { "title": "Systèmes et Réseaux",
+            "cours": ["Systèmes", "BDD", "Réseaux", "Cloud"],
+            "confidence": 2,
+          },
+          { "title": "Sécurité",
+            "cours": ["Cryptographie", "Systèmes", "Réseaux"],
+            "confidence": 0,
+          },
+        ]
+
+        pic.node(r"Besoins",
+                 at=(7,1),
+                 font="\\bfseries\\scshape",
+                 anchor="center",
+                 )
+
+        pic.node(r"\includegraphics[width=8cm]{./images/institutions/inp-bordeaux.png}",
+                 at=(1, -5),
+                 opacity=0.1,
+                 anchor="south west",
+                 fill="white",
+                 )
+
+        pic.node(r"Semestre 9: Méthodes Formelles",
+                 at=(5, -7.5),
+                 text_width="6cm",
+                 rounded_corners="2mm",
+                 fill="A5hint",
+                 align="center",
+                 inner_sep="0.5em",
+                 draw="A5",
+                 thick=True,
+                 )
+
+        for i,besoin in enumerate(besoins):
+            x = 1 if self.detailed else 5
+            y = - i  * 2 - 0.1
+            pic.node(besoin["title"],
+                     at=(x,y),
+                     minimum_height="1.5cm",
+                     anchor="west",
+                     font="\\bfseries",
+                     align="center",
+                     thick=True,
+                     rounded_corners="2mm",
+                     draw="A5",
+                     text_width="4cm",
+                     )
+
+            if self.detailed:
+                for j,cours in enumerate(besoin["cours"]):
+                    xp = 5.2 if j % 2 == 0 else 7.2
+                    yp =  1 + y - (j // 2 + 1) * 0.5
+                    pic.node(r"\strut " + cours,
+                             at=(xp,yp),
+                             anchor="west",
+                             font="\\itshape\\small",
+                             )
+            else:
+                conf = besoin["confidence"]
+                if conf == 0:
+                    pic.node(r"\strut " + r"\xmark",
+                             at=(4.2,y),
+                             anchor="west",
+                             font="\\bfseries\\large",
+                             text="A2",
+                             )
+                elif conf == 2:
+                    pic.node(r"\strut " + r"$\bullet$",
+                             at=(4.2,y),
+                             anchor="west",
+                             font="\\bfseries\\large",
+                             text="A4",
+                             )
+                elif conf == 3:
+                    pic.node(r"\strut " + r"\cmark",
+                             at=(4.2,y),
+                             anchor="west",
+                             font="\\bfseries\\large",
+                             text="A5",
+                             )
+
+
+    def __iter__(self):
+        yield (0, TeachingNeeds())
 
 @dataclasses.dataclass
 class Teaching:
+
+    extras: bool = True
+    fullsize: bool = False
+    needs : bool = False
+    fullneeds: bool = True 
+
     def draw(self, pic):
-        pass
+        td = TeachingDuties(fullsize=self.fullsize)
+        td.draw(pic)
+
+        if self.extras:
+            escope = pic.scope(xshift="-9cm", yshift="-2cm")
+
+            extras = ExtraTeachingPower()
+            extras.draw(escope)
+
+        if self.needs:
+            tnscope = pic.scope(xshift="0cm", yshift="3.7cm")
+            needs = TeachingNeeds(detailed=self.fullneeds)
+            needs.draw(tnscope)
+
 
     def __iter__(self):
-        yield (0, Teaching())
+        yield (0, Teaching(False, True))
+        yield (1, Teaching(True, False))
+        yield (1, Teaching(True, False, True))
+        yield (1, Teaching(True, False, True, False))
+        
+
 
 @dataclasses.dataclass
 class ThemesAndLocations:
+    locations : bool = False
     def draw(self, pic):
         themes = [("Ordres", cWA), ("Automates", cAut), ("Logique", cBD)]
         for i,(theme,col) in enumerate(themes):
@@ -230,6 +481,9 @@ class ThemesAndLocations:
                 text_width="2cm",
                 align="center",
             ) 
+
+        if not self.locations:
+            return
 
         labs = [
                 { "logo": "./images/institutions/irif.pdf" },
@@ -262,7 +516,7 @@ class ThemesAndLocations:
 
 
     def __iter__(self):
-        yield (0, ThemesAndLocations())
+        yield (0, ThemesAndLocations(True))
 
 
 @dataclasses.dataclass
@@ -631,22 +885,1140 @@ class AutomatesTransducteurs:
             yield (1, AutomatesTransducteurs(i >= 1, i >= 2, i >= 3))
 
 
+
 @dataclasses.dataclass
-class Research:
+class Cycle:
+    size:   int
+    radius: float | int
+    
+    verticesProps: List[dict] = dataclasses.field(default_factory=list)
+    edgesProps:    dict[Tuple[int,int], dict] = dataclasses.field(default_factory=dict)
+
     def draw(self, pic):
-        ThemesAndLocations().draw(pic)
-        f = FilAriane(
-                 header="Thèmes de recherche",
-                 width=8,
-                 current=None,
-                 titles=["Ordres", "Automates", "Logique"],
-        )
-        arsc = pic.scope(yshift="5.15cm")
-        f.draw(arsc)
-        pass
+        for i in range(self.size):
+            angle = 2 * math.pi * i / self.size
+            x = self.radius * math.cos(angle)
+            y = self.radius * math.sin(angle)
+            prps = self.verticesProps[i] if i < len(self.verticesProps) else {}
+            n = prps.get("name", f"v{i}")
+            myProps = {
+                     "at": (x, y),
+                     "circle": True,
+                     "inner_sep": "2pt",
+                     "draw": True,
+                     "name": n }
+            pic.node("", **(prps | myProps ))
+
+        for i in range(self.size):
+            pi = self.verticesProps[i] if i < len(self.verticesProps) else {}
+            j = (i+1)%self.size
+            pj = self.verticesProps[j] if j < len(self.verticesProps) else {}
+            ni = pi.get("name", f"v{i}")
+            nj = pj.get("name", f"v{j}")
+            pic.draw(f"({ni})", topath(f"({nj})"))
 
     def __iter__(self):
-        yield (0, Research())
+        yield (0, self)
+
+@dataclasses.dataclass
+class Path:
+    length: int
+
+    def draw(self, pic):
+        start = -(self.length-1)/2
+        for i in range(self.length):
+            pic.node("",
+                     at=(start + i,0),
+                     circle=True,
+                     draw=True,
+                     inner_sep="2pt",
+                     name=f"v{i}")
+
+        for i in range(self.length-1):
+            pic.draw(f"(v{i})", topath(f"(v{i+1})"))
+
+    def __iter__(self):
+        yield (0, self)
+
+
+@dataclasses.dataclass
+class Clique:
+    size: int
+    radius: float | int
+
+    def draw(self, pic):
+        # place nodes in a circle
+        for i in range(self.size):
+            angle = 2 * math.pi * i / self.size
+            x = self.radius * math.cos(angle)
+            y = self.radius * math.sin(angle)
+            pic.node("",
+                     at=(x, y),
+                     circle=True,
+                     inner_sep="2pt",
+                     draw=True,
+                     name=f"v{i}")
+
+        # draw all edges
+        for i in range(self.size):
+            for j in range(i+1, self.size):
+                pic.draw(f"(v{i})", topath(f"(v{j})"))
+
+    def __iter__(self):
+        yield (0, self)
+
+@dataclasses.dataclass
+class LosTarskiExemple:
+    formule:  Optional[Literal["informal", "formal"]] = "formal"
+    exemples: Optional[int] = None
+    presForm: bool = True
+    presText: bool = True
+
+    def draw(self, pic):
+        pic.node(r"Graphes",
+                 at=(-6,3),
+                 font="\\scshape\\bfseries\\Large")
+
+        if self.formule is not None:
+            pic.node(r"$\varphi$ = «~contient un chemin \textbf{induit} de longueur $2$~»",
+                     at=(3.5,3),
+                     font="\\Large",
+                     color="A3")
+        if self.formule == "formal":
+            pic.node(r"$\exists x,y,z, E(x,y) \land E(y,z) \land \neg E(x,z)$",
+                     at=(3.4,2.6),
+                     color="A3")
+
+        exs = [(Cycle(6, 1), "oui"),
+               (Clique(5, 1), "non"),
+               (Path(2), "non"),
+               (Path(3), "oui") ]
+
+        for (i, (ex, b)) in enumerate(exs):
+            if self.exemples is not None and i >= self.exemples:
+                break
+            sex = pic.scope(xshift=f"{-4 + i*3}cm",
+                            yshift="1cm")
+            ex.draw(sex)
+            col = "A5" if b == "oui" else "A2"
+            pic.node(f"$\\models \\varphi$? {b}",
+                     at=(-4 + i*3, -0.5),
+                     color=col)
+
+        if self.presForm:
+            pic.node(r"$G \subseteq_i H$",
+                     at=(-2,-2.5),
+                     color="C2",
+                     text_width="2cm",
+                     font="\\Large")
+            pic.node(r"$\land$",
+                     at=(-3.5,-3),
+                     font="\\Large")
+            pic.node(r"$G \models \varphi$",
+                     at=(-2,-3.5),
+                     text_width="2cm",
+                     color="A5",
+                     font="\\Large")
+            pic.node(r"$\implies$",
+                     at=(0,-3),
+                     font="\\Large")
+            pic.node(r"$H \models \varphi$",
+                     at=(2,-3),
+                     color="A5",
+                     font="\\Large")
+        
+        if self.presText:
+            pic.node(r"\textcolor{A3}{$\varphi$} préservée par \textcolor{C2}{extensions}",
+                     font="\\itshape\\huge",
+                     at=(3, -4),
+                     rounded_corners="1mm",
+                     draw=True,
+                     thick=True)
+
+    def __iter__(self):
+        yield (0, LosTarskiExemple(formule=None,
+                                   exemples=0,
+                                   presForm=False,
+                                   presText=False))
+        yield (1, LosTarskiExemple(formule="informal",
+                                   exemples=0,
+                                   presForm=False,
+                                   presText=False))
+        yield (1, LosTarskiExemple(formule="formal",
+                                   exemples=0,
+                                   presForm=False,
+                                   presText=False))
+        yield (2, LosTarskiExemple(formule="formal",
+                                   exemples=1,
+                                   presForm=False,
+                                   presText=False))
+        yield (2, LosTarskiExemple(formule="formal",
+                                   exemples=None,
+                                   presForm=False,
+                                   presText=False))
+        yield (1, LosTarskiExemple(formule="formal",
+                                   exemples=None,
+                                   presForm=True,
+                                   presText=False))
+        yield (1, LosTarskiExemple(formule="formal",
+                                   exemples=None,
+                                   presForm=True,
+                                   presText=True))
+
+@dataclasses.dataclass
+class LosTarskiThm:
+    mainThrm: bool = True
+    def draw(self, pic):
+
+        if self.mainThrm:
+            ltrsk  = pic.scope(xshift="-5cm", yshift="3cm")
+
+            ltrsk.draw((-4, 0.6), rectangle((4,-4)),
+                       rounded_corners="2mm")
+
+            ltrsk.node(r"Théorème Łoś-Tarski",
+                     at=(0,0),
+                     font=r"\Large\bfseries")
+
+            ltrsk.node(r"$\varphi \in \mathsf{FO}$",
+                     at=(0,-1),
+                     font=r"\Large",
+                     color="A3")
+
+            ltrsk.node(r"\textcolor{A3}{$\varphi$} préservée par \textcolor{C2}{extensions}",
+                     at=(0,-2),
+                     font=r"\Large")
+
+            ltrsk.node(r"\textcolor{A3}{$\varphi$} équivalente à \textcolor{A4}{$\psi$ existentielle}",
+                     at=(0,-3),
+                     font=r"\Large")
+
+            ltrsk.node(r"$\implies$",
+                     rotate="90",
+                     font=r"\Large",
+                     at=(-3,-2.5))
+            ltrsk.node(r"$\implies$",
+                     rotate="-90",
+                     font=r"\Large",
+                     at=(3,-2.5))
+            ltrsk.node(r"Facile",
+                     rotate="90",
+                     at=(-3.5, -2.5))
+            ltrsk.node(r"Difficile",
+                     rotate="-90",
+                     at=(3.5, -2.5))
+        
+
+    def __iter__(self):
+        yield (0, LosTarskiThm(True))
+
+@dataclasses.dataclass
+class LosTarskiUtilite:
+    def draw(self, pic):
+        pic.style("txt", text_width="8cm", anchor="north west", align="left")
+        pic.style("titl", txt=True, font="\\scshape\\bfseries")
+
+        pic.node(r"Théorie des modèles finis",
+                 titl=True,
+                 at=(0,-3.3))
+        pic.node(r"Statut des théorèmes dans le cas fini~?",
+                 txt=True,
+                 text_width="8cm",
+                 at=(0,-4))
+        pic.node(r"Décompositions structurelles",
+                 txt=True,
+                 text_width="8cm",
+                 at=(0,-4.5))
+
+        pic.node(r"Bases de données",
+                 titl=True,
+                 at=(0,-0.3))
+        pic.node(r"Structures relationnelles $\rightsquigarrow$ bases de données",
+                 txt=True,
+                 at=(0,-1))
+        pic.node(r"Bases incomplètes $\rightsquigarrow$ \emph{préservation \textcolor{A2}{par homomorphisme}}",
+                 txt=True,
+                 at=(0,-1.5))
+
+
+    def __iter__(self):
+        yield (0, LosTarskiUtilite())
+
+@dataclasses.dataclass
+class ThmPreservations:
+    exemple: LosTarskiExemple
+    theorem: LosTarskiThm
+    utilite: LosTarskiUtilite
+
+    mode : Literal["Init", "Ex", "Th", "Ut", "Fin"] = "Fin"
+
+    def draw(self, pic):
+        match self.mode:
+            case "Init":
+                pass
+            case "Ex":
+                self.exemple.draw(pic)
+            case "Th":
+                ctn = drawing_to_node(self.exemple,5)
+                pic.node(ctn, at=(-5,-3), opacity=0.8)
+                self.theorem.draw(pic)
+            case "Ut":
+                exdr = drawing_to_node(self.exemple,5)
+                ltdr = drawing_to_node(self.theorem,5)
+                pic.node(exdr, at=(-5,-3), opacity=0.6)
+                pic.node(ltdr, at=(-5,2),  opacity=0.8)
+                utscope = pic.scope(yshift="2.7cm")
+                self.utilite.draw(utscope)
+            case "Fin":
+                exdr = drawing_to_node(self.exemple,5)
+                ltdr = drawing_to_node(self.theorem,5)
+                pic.node(exdr, at=(-5,-3), opacity=0.6)
+                pic.node(ltdr, at=(-5,2),  opacity=0.6)
+                utscope = pic.scope(yshift="2.7cm")
+                self.utilite.draw(utscope)
+                pic.node(r"""
+                         \textbf{CSL'21~:} topologie de la préservation
+                         \newline%
+                         \underline{\textbf{LICS'22}~:}
+                         localité et préservation
+                         """,
+                         at=(0,0),
+                         rounded_corners="2mm",
+                         text_width="6cm",
+                         thick=True,
+                         fill="white",
+                         draw="A5",
+                         inner_sep="1em")
+
+    def __iter__(self):
+        yield (0, ThmPreservations(
+                                   self.exemple, 
+                                   self.theorem, 
+                                   self.utilite, 
+                                   mode = "Init"))
+        for (d, ex) in self.exemple:
+            yield (d+1, ThmPreservations(
+                                         ex, 
+                                         self.theorem, 
+                                         self.utilite,
+                                         mode = "Ex"))
+
+        for (d, th) in self.theorem:
+            yield (d+1, ThmPreservations(
+                                         self.exemple, 
+                                         th, 
+                                         self.utilite,
+                                         mode = "Th"))
+
+        yield (1, ThmPreservations(self.exemple, self.theorem, self.utilite, mode = "Ut"))
+        yield (1, ThmPreservations(self.exemple, self.theorem, self.utilite, mode = "Fin"))
+
+@dataclasses.dataclass
+class CheminsLosTarski:
+    legend : bool = False
+    explication: bool = False
+    showValidity: bool = False
+    def draw(self, pic):
+        if self.legend:
+            pic.node(r"Chemins",
+                     font=r"\scshape\bfseries\Large",
+                     at=(-5,-3.8))
+
+        for i in range(5):
+            c = Path(i+1)
+            sc = pic.scope(yshift=f"{-3 + i}cm", xshift="-5cm")
+            c.draw(sc)
+
+        for i in range(4):
+            pic.node(r"$\subseteq_i$",
+                     color="C2",
+                     rotate="90",
+                     font=r"\large",
+                     at=(-5, -2.5 + i))
+
+        if self.legend:
+            pic.node(r"\vdots", at=(-5, 2), font=r"\large")
+
+        if self.explication:
+            pic.node(r"\textcolor{A3}{$\varphi$} préservée par \textcolor{C2}{extensions}",
+                     at=(5,1),
+                     font=r"\Large")
+
+            pic.node(r"$\implies$",
+                     rotate="-90",
+                     at=(5,0),
+                     font=r"\large")
+
+            pic.node(r"\textcolor{A3}{$\varphi$} $\equiv$ \textcolor{A4}{«~Au moins $x$ éléments~»}",
+                     at=(5, -1),
+                     font=r"\large")
+            pic.node(r"\textcolor{A3}{$\varphi$} $\equiv$ \textcolor{A4}{$\bot$}",
+                     at=(5, -3),
+                     font=r"\large")
+            pic.node(r"OU",
+                     at=(5, -2),
+                     font=r"\large")
+
+        if self.showValidity:
+            pic.node(r"\textcolor{A5}{OUI \cmark}", 
+                     at=(-5,0), 
+                     fill="white",
+                     rotate="30",
+                     font="\\Huge")
+
+
+    def __iter__(self):
+        yield (0, CheminsLosTarski(True,False,False))
+        yield (1, CheminsLosTarski(True,True,False))
+        yield (1, CheminsLosTarski(True,True,True))
+
+@dataclasses.dataclass
+class CyclesLosTarski:
+    legend : bool = False
+    explication: bool = False
+    showValidity: bool = False
+    def draw(self, pic):
+        if self.legend:
+            pic.node(r"Cycles",
+                     font=r"\scshape\bfseries\Large",
+                     at=(-5,-3.8))
+
+        for i in range(3,7):
+            odd = i % 2 == 1
+            iup = i if odd else i-1
+            c = Cycle(i,0.5)
+            xs = "-6cm" if odd else "-4cm"
+            sc = pic.scope(yshift=f"{-5 + iup}cm", xshift=xs)
+            c.draw(sc)
+
+        if self.legend:
+            pic.node(r"\vdots", at=(-5, 2), font=r"\large")
+
+
+        if self.explication:
+            pic.node(r"Toute formule est préservée par \textcolor{C2}{extensions}~!",
+                     at=(5,1),
+                     font=r"\Large")
+
+            pic.node(r"mais...",
+                     at=(5,0),
+                     font=r"\large")
+
+            pic.node(r"Toute formule est équivalente à une formule \textcolor{A4}{existentielle}~!",
+                     at=(5, -1),
+                     font=r"\large")
+
+        if self.showValidity:
+            pic.node(r"\textcolor{A5}{OUI \cmark}", 
+                     at=(-5,0), 
+                     fill="white",
+                     rotate="30",
+                     font="\\Huge")
+
+
+    def __iter__(self):
+        yield (0, CyclesLosTarski(True,False,False))
+        yield (1, CyclesLosTarski(True,True,False))
+        yield (1, CyclesLosTarski(True,True,True))
+
+
+@dataclasses.dataclass
+class CyclesUCheminsNotLosTarski:
+    legend: bool = False
+    explication: bool = False
+    showValidity: bool = False
+    def draw(self, pic):
+        if self.legend:
+            pic.node(r"Cycles $\cup$ Chemins",
+                     font=r"\scshape\bfseries\Large",
+                     at=(-5,-3.8))
+        for i in range(5):
+            c = Path(i+1)
+            sc = pic.scope(yshift=f"{-3 + i}cm", xshift="-5cm")
+            c.draw(sc)
+
+        for i in range(4):
+            pic.node(r"$\subseteq_i$",
+                     color="C2",
+                     rotate="90",
+                     font=r"\large",
+                     at=(-5, -2.5 + i))
+
+        for i in range(3,7):
+            c = Cycle(i,0.5)
+            xs = -12.5 + i * 1.5
+            sc = pic.scope(yshift="3cm", xshift=f"{xs}cm")
+            c.draw(sc)
+
+        if self.legend:
+            pic.node(r"$\vdots$", at=(-5, 2), font=r"\large")
+            pic.node(r"$\cdots$", at=(-1.5, 3), font=r"\large")
+
+        if self.explication:
+            pic.node(r"«~$\forall x. \textrm{degré}(x) = 2$~» \newline est préservée par \textcolor{C2}{extensions}",
+                     at=(5,2),
+                     text_width="6cm",
+                     font=r"\Large")
+
+            pic.node(r"et",
+                     at=(5,0),
+                     font=r"\large")
+
+            pic.node(r"ne peut pas être écrite comme une formule \textcolor{A4}{existentielle}~!",
+                     at=(5, -1),
+                     font=r"\large")
+
+        if self.showValidity:
+            pic.node(r"\textcolor{A2}{NON \xmark}", 
+                     at=(-5,0), 
+                     fill="white",
+                     rotate="30",
+                     font="\\Huge")
+
+    def __iter__(self):
+        yield (0, CyclesUCheminsNotLosTarski(True,False,False))
+        yield (1, CyclesUCheminsNotLosTarski(True,True,False))
+        yield (1, CyclesUCheminsNotLosTarski(True,True,True))
+
+
+@dataclasses.dataclass
+class RelatLosTarski:
+    def draw(self, pic):
+        pic.draw((-4, 0.6), rectangle((4,-4)),
+                   rounded_corners="2mm")
+
+        pic.node(r"Relativisation à une classe $\mathcal{C}$?",
+                 at=(0,0),
+                 font=r"\Large\bfseries")
+
+        pic.node(r"$\varphi \in \mathsf{FO}$",
+                 at=(0,-1),
+                 font=r"\Large",
+                 color="A3")
+
+        pic.node(r"\textcolor{A3}{$\varphi$} préservée par \textcolor{C2}{extensions} \textbf{sur $\mathcal{C}$}",
+                 at=(0,-2),
+                 font=r"\large")
+
+        pic.node(r"\textcolor{A3}{$\varphi$} équivalente à \textcolor{A4}{$\psi$ existentielle} \textbf{sur $\mathcal{C}$}",
+                 at=(0,-3),
+                 font=r"\large")
+
+        pic.node(r"$\implies$",
+                 rotate="90",
+                 font=r"\Large",
+                 at=(-3,-2.5))
+        pic.node(r"$\implies$",
+                 rotate="-90",
+                 font=r"\Large",
+                 at=(3,-2.5))
+        pic.node(r"Facile",
+                 rotate="90",
+                 at=(-3.5, -2.5))
+        pic.node(r"Difficile",
+                 rotate="-90",
+                 at=(3.5, -2.5))
+
+    def __iter__(self):
+        yield (0, RelatLosTarski())
+
+@dataclasses.dataclass
+class LosTarskiFiniteClasses:
+    filAriane: FilAriane
+
+    cycles: CyclesLosTarski 
+    paths : CheminsLosTarski
+    puc   : CyclesUCheminsNotLosTarski
+
+    mode  : Literal["Init",
+                    "Paths",
+                    "P->C",
+                    "Cyc",
+                    "C->PUC",
+                    "PUC",
+                    "PUC->Fin",
+                    "Fin"]
+
+    def draw(self, pic):
+        arsc = pic.scope(yshift="5.15cm")
+        self.filAriane.draw(arsc)
+
+        pic.node(drawing_to_node(RelatLosTarski(), 4),
+                 at=(5,3),
+                 fill="white")
+
+        pic.style("cls",
+                  text_width="2cm",
+                  align="center",
+                  rounded_corners="2mm",
+                  thick=True,
+                  minimum_height="2.3cm",
+                  draw=True,
+                  inner_sep="1em")
+
+        pic.node(r"Cycles",
+                 name="cycles",
+                 color=("A1" if self.mode in ["Init", "Path", "P->C", "Cycles"] else "A5"),
+                 cls=True,
+                 at=(-6,2))
+        pic.node(r"Logique",
+                 opacity=(0 if self.mode in ["Init", "Path", "P->C", "Cycles"] else 1),
+                 at=(-6,3.4))
+
+        pic.node(r"Chemins",
+                 cls=True,
+                 color=("A1" if self.mode in ["Init", "Path"] else "A5"),
+                 name="paths",
+                 at=(-6,-2))
+        pic.node(r"Beau Préordre",
+                 opacity=(0 if self.mode in ["Init", "Path"] else 1),
+                 at=(-6,-3.4))
+
+        pic.node(r"Cycles et Chemins",
+                 name="puc",
+                 color=("A2" if self.mode in ["PUC->Fin", "Fin"] else "A1"),
+                 cls=True,
+                 at=(-2,0))
+
+        pic.node(r"$\mathrm{Degré}_{\leq 2}$",
+                 name="deg2",
+                 color=("A5" if self.mode == "Fin" else "A1"),
+                 cls=True,
+                 at=(2,0))
+
+        pic.node(r"Graphes Finis",
+                 name="all",
+                 cls=True,
+                 color="A2",
+                 at=(6,0))
+        pic.node(r"[\bsc{Tait}'59]",
+                 at=(6,-1),
+                 text="A2",
+                 fill="white",
+                 draw="A2",
+                 rounded_corners="2mm",
+                 rotate="30")
+
+
+        
+        # midway for paths and puc
+        pic.node(r"$\subseteq$",
+                 at=(-4,1),
+                 rotate="-30",
+                 font="\\Large")
+        pic.node(r"$\subseteq$",
+                 at=(-4,-1),
+                 rotate="30",
+                 font="\\Large")
+        pic.node(r"$\subseteq$",
+                 at=(0,0),
+                 font="\\Large")
+        pic.node(r"$\subseteq$",
+                 at=(4,0),
+                 font="\\Large")
+
+
+
+        PICT_WIDTH = 1.7
+        match self.mode:
+            case "Paths":
+                pic.draw((-8.5,3.6), rectangle((8.5,-3.6)), fill="white")
+                scope = pic.scope(scale="0.7")
+                self.paths.draw(scope)
+            case "P->C":
+                pathd = drawing_to_node(self.paths, PICT_WIDTH)
+                pic.node(pathd, at=(-6,-2), fill="white")
+            case "Cyc":
+                pathd = drawing_to_node(self.paths, PICT_WIDTH)
+                pic.node(pathd, at=(-6,-2), fill="white")
+                pic.draw((-8.5,3.6), rectangle((8.5,-3.6)), fill="white")
+                scope = pic.scope(scale="0.7")
+                self.cycles.draw(scope)
+            case "C->PUC":
+                cycd  = drawing_to_node(self.cycles, PICT_WIDTH)
+                pathd = drawing_to_node(self.paths, PICT_WIDTH)
+                pic.node(cycd, at=(-6,2), fill="white")
+                pic.node(pathd, at=(-6,-2), fill="white")
+            case "PUC":
+                cycd  = drawing_to_node(self.cycles, PICT_WIDTH)
+                pathd = drawing_to_node(self.paths, PICT_WIDTH)
+                pic.node(cycd, at=(-6,2), fill="white")
+                pic.node(pathd, at=(-6,-2), fill="white")
+                pic.draw((-8.5,3.6), rectangle((8.5,-3.6)), fill="white")
+                scope = pic.scope(scale="0.7")
+                self.puc.draw(scope)
+            case "PUC->Fin":
+                cycd  = drawing_to_node(self.cycles, PICT_WIDTH)
+                pathd = drawing_to_node(self.paths,  PICT_WIDTH)
+                pucd  = drawing_to_node(self.puc,    PICT_WIDTH)
+                pic.node(cycd, at=(-6,2), fill="white")
+                pic.node(pathd, at=(-6,-2), fill="white")
+                pic.node(pucd, at=(-2,0), fill="white")
+            case "Fin":
+                cycd  = drawing_to_node(self.cycles, PICT_WIDTH)
+                pathd = drawing_to_node(self.paths,  PICT_WIDTH)
+                pucd  = drawing_to_node(self.puc,    PICT_WIDTH)
+                pic.node(cycd, at=(-6,2), fill="white")
+                pic.node(pathd, at=(-6,-2), fill="white")
+                pic.node(pucd, at=(-2,0), fill="white")
+                pic.node(r"""\textbf{Condition \underline{suffisante}}
+                            \newline
+                             \citeauthor{ATDAGR08} (\citeyear{ATDAGR08})~:%
+                             \newline%
+                             \vspace{1em}%
+                             \emph{clos par $\subseteq_i$},
+                             \emph{clos par $\uplus$},
+                             \underline{\emph{degré borné}}""",
+                         at=(0,-3),
+                         text_width="8cm",
+                         font=r"\large")
+
+
+
+    def __iter__(self):
+        yield (0, LosTarskiFiniteClasses(
+                    filAriane=self.filAriane,
+                    cycles=self.cycles,
+                    paths=self.paths,
+                    puc=self.puc,
+                    mode="Init"))
+
+        for (d, p) in self.paths:
+            yield (d+1, LosTarskiFiniteClasses(
+                    filAriane=self.filAriane,
+                    cycles=self.cycles,
+                    paths=p,
+                    puc=self.puc,
+                    mode="Paths"))
+
+        yield (1, LosTarskiFiniteClasses(
+                filAriane=self.filAriane,
+                cycles=self.cycles,
+                paths=self.paths,
+                puc=self.puc,
+                mode="P->C"))
+
+        for (d, c) in self.cycles:
+            yield (d+1, LosTarskiFiniteClasses(
+                    filAriane=self.filAriane,
+                    cycles=c,
+                    paths=self.paths,
+                    puc=self.puc,
+                    mode="Cyc"))
+
+        yield (1, LosTarskiFiniteClasses(
+                filAriane=self.filAriane,
+                cycles=self.cycles,
+                paths=self.paths,
+                puc=self.puc,
+                mode="C->PUC"))
+
+        for (d, p) in self.puc:
+            yield (d+1, LosTarskiFiniteClasses(
+                    filAriane=self.filAriane,
+                    cycles=self.cycles,
+                    paths=self.paths,
+                    puc=p,
+                    mode="PUC"))
+
+        yield (1, LosTarskiFiniteClasses(
+                filAriane=self.filAriane,
+                cycles=self.cycles,
+                paths=self.paths,
+                puc=self.puc,
+                mode="PUC->Fin"))
+
+        yield (1, LosTarskiFiniteClasses(
+                    filAriane=self.filAriane,
+                    cycles=self.cycles,
+                    paths=self.paths,
+                    puc=self.puc,
+                    mode="Fin"))
+
+
+@dataclasses.dataclass
+class LocalityPotatoes:
+    negative: bool = False
+    neighbrd: bool = True
+    substruct: bool = True
+    def draw(self, pic):
+        xmarkopacity    = 1 if self.negative and not self.substruct else 0
+        structopacity   = 1 if not self.substruct else 0
+        neighbropacity  = 1 if self.neighbrd else 0
+        poscycleopacity = 1 - neighbropacity
+
+        # draw an ellipse
+        pic.draw((0,0), 
+                 circle(x_radius="3", y_radius="1.5"), 
+                 fill="D1hint",
+                 opacity=structopacity,
+                 thick=True)
+
+        # draw three circles inside the ellipse,
+        # green
+        greencycles = [(0.5,-0.5), (1.5,0), (2.5,0.2)]
+
+        # barycenter of the green points
+        (bx, by) = (sum(x for (x,_) in greencycles) / 3,
+                    sum(y for (_,y) in greencycles) / 3)
+        # ellipse around the green points
+        pic.draw((bx, by), 
+                 circle(x_radius=1.4, 
+                        y_radius=0.5,
+                        rotate="25"), 
+                 fill="C5hint",
+                 opacity=neighbropacity,
+                 draw=True, thick=True)
+        for (x,y) in greencycles:
+            pic.draw((x,y), circle(0.3), fill="C5hint",
+                     opacity=poscycleopacity)
+            pic.draw((x,y), circle(0.05), fill="B5", draw=None)
+
+        # red
+        redcycles = [(0,0), (-2,0.5), (-1,-0.7)]
+        for (x,y) in redcycles:
+            pic.draw((x,y), circle(0.3), 
+                     opacity=structopacity,
+                     fill="B2hint")
+            pic.draw((x,y), circle(0.05), 
+                     opacity=structopacity,
+                     fill="A2", draw=None)
+            pic.node(r"\xmark",
+                     at=(x,y),
+                     opacity=xmarkopacity,
+                     font="\\Huge",
+                     color="A5")
+
+    def __iter__(self):
+        yield (0, LocalityPotatoes(False,False,False))
+        for i in range(1, 4):
+            yield (i, LocalityPotatoes(i >= 1, i >= 2, i >= 3))
+
+@dataclasses.dataclass
+class LocalisationCycles:
+    cycles: bool = True
+    centers: bool = True
+    balls : bool = True
+    neighbs: bool = True
+    title: bool = True
+
+    def draw(self, pic):
+        if self.title:
+            pic.node(r"$\mathrm{Loc}_{1,1}(\mathrm{Cycles}) = \{ C_3, P_3 \}$",
+                     at=(0,-0.5))
+
+        if self.centers:
+            selected = {"color": "A4", "fill": True}
+        else:
+            selected = {}
+
+        if self.neighbs:
+            neighb   = {"color": "C4", "fill": True}
+        else:
+            neighb   = {}
+            
+
+        if self.cycles:
+            c3 = Cycle(3, 0.5,
+                       verticesProps = [ {"name": "v0"} | selected,
+                                         {"name": "v1"} | neighb,
+                                         {"name": "v2"} | neighb ])
+
+            c6 = Cycle(6, 0.5,
+                       verticesProps = [ {"name": "w0"} | neighb,
+                                         {"name": "w1"} | selected,
+                                         {"name": "w2"} | neighb,
+                                         {"name": "w3"},
+                                         {"name": "w4"},
+                                         {"name": "w5"}])
+
+
+            s3 = pic.scope(xshift="-1.5cm", yshift="-2cm")
+            s6 = pic.scope(xshift="1.5cm", yshift="-2cm")
+            c3.draw(s3)
+            c6.draw(s6)
+
+            if self.balls:
+                s3.draw("(v0)", circle(0.85), thick=True)
+                s6.draw("(w1)", circle(0.5), thick=True)
+
+    def __iter__(self):
+        yield (0, LocalisationCycles(True, False, False, False, False))
+        for i in range(1, 5):
+            yield (1, LocalisationCycles(i >= 0, i >= 1, i >= 2, i >= 3, i >= 4))
+
+@dataclasses.dataclass
+class LocalToGlobalThm:
+    locCycles: LocalisationCycles
+    showNewCls: bool = False
+
+    def draw(self, pic):
+        pic.node(r"""\begin{minipage}{9cm}
+                    \textbf{Théorème [Lopez, LICS'22]} \newline
+                     Soit $\mathcal{C}$
+                     \emph{close par $\subseteq_i$} et \emph{$\uplus$}.
+                     Les propriétés suivantes sont \underline{équivalentes}~:
+                     \begin{enumerate}
+                     \item Łoś-Tarski relativise à $\mathcal{C}$
+                     \item Łoś-Tarski relativise à 
+                     $\mathrm{Loc}_{r,k}(\mathcal{C})$, pour tout $r,k \in \mathbb{N}$
+                     \end{enumerate}
+                     \end{minipage}
+                  """,
+                 text_width="9cm",
+                 at=(0,2),
+                 fill="D4hint")
+
+
+        sc = pic.scope(yshift="0.5cm")
+        self.locCycles.draw(sc)
+
+        if self.showNewCls:
+            pic.node(r"""\textbf{Nouvelles classes~:} «~\emph{localement} $X$~» \newline%
+                    $\rightsquigarrow$ \emph{localement fini} $\iff$ degré borné
+                     """,
+                     at=(0,-3.5),
+                     text_width="6cm")
+
+    def __iter__(self):
+        yield (0, LocalToGlobalThm(LocalisationCycles(False,False,False,False,False), False))
+        for (d, lc) in self.locCycles:
+            yield (d+1, LocalToGlobalThm(lc, False))
+
+
+@dataclasses.dataclass
+class LocalToGlobalMethod:
+    potatoes: LocalityPotatoes
+    localite: bool = True
+    combi1: bool = True
+    combi2: bool = True
+    conclusion: bool = True
+    def draw(self, pic):
+
+        pic.node(r"\textbf{Ré-écriture des formules}",
+                 at=(0,3.2),
+                 font="\\bfseries\\scshape", anchor="center")
+
+        if self.localite:
+            pic.node(r"$\varphi$",
+                     anchor="west",
+                     at=(-4,2.5))
+            pic.node(r"$\rightsquigarrow$",
+                     anchor="west",
+                     at=(-3,2.5))
+            pic.node(r"""
+                    $\bigvee \bigwedge \, \textcolor{A2}{(\neg)}
+                    \,
+                    \textcolor{C3}{\exists_r^{\geq k} x.}
+                    \textcolor{A5}{\psi_{|\mathcal{N}(x, r)}}(x)$""",
+                     anchor="west",
+                     at=(-2,2.5))
+            pic.node(r"Localité",
+                     at=(3,2.5),
+                     anchor="west",
+                     text="C1",
+                     fill="white")
+
+        if self.combi1:
+            pic.node(r"$\rightsquigarrow$",
+                     anchor="west",
+                     at=(-3,1.7))
+            pic.node(r"""
+                    $\bigvee \bigwedge \, \textcolor{A2}{~~~~~~}
+                    \,
+                    \textcolor{C3}{\exists_r^{\geq k} x.}
+                    \textcolor{A5}{\psi_{|\mathcal{N}(x, r)}}(x)$""",
+                     anchor="west",
+                     at=(-2,1.7))
+            pic.node(r"($\subseteq_i$)",
+                     at=(3,1.7),
+                     text="C1",
+                     anchor="west",
+                     fill="white")
+
+        if self.combi2:
+            pic.node(r"$\rightsquigarrow$",
+                     anchor="west",
+                     at=(-3,1))
+            pic.node(r"""
+                    $\exists \vec{x}. \,
+                                \textcolor{A5}{\theta_{|\mathcal{N}(\vec{x}, r)}(\vec{x})}$
+                     """,
+                     anchor="west",
+                     at=(-2,1))
+            pic.node(r"Voisinages",
+                     at=(3,1),
+                     text="C1",
+                     anchor="west",
+                     fill="white")
+
+        if self.conclusion:
+            pic.node(r"$\rightsquigarrow$",
+                     anchor="west",
+                     at=(-3,0.2))
+            pic.node(r"""
+                    $\exists \vec{x}. \,
+                     \exists \vec{y}. \,
+                     \gamma(\vec{x}, \vec{y})$
+                     """,
+                     anchor="west",
+                     at=(-2,0.2))
+            pic.node(r"$\mathrm{Loc}_{r,|\vec{x}|}(\mathcal{C})$",
+                     at=(3,0.2),
+                     text="C1",
+                     anchor="west",
+                     fill="white")
+
+        scope = pic.scope(yshift="-2.5cm")
+        self.potatoes.draw(scope)
+
+    def __iter__(self):
+        for ((d, pot), i) in zip(self.potatoes, range(4)):
+            yield (d, LocalToGlobalMethod(pot, i >= 0, i >= 1, i >= 2, i >= 3))
+
+@dataclasses.dataclass
+class DevTechnique:
+
+    filAriane: FilAriane
+    methode : LocalToGlobalMethod
+    theorem : LocalToGlobalThm
+
+    mode: Literal["Init", "Thm", "Meth"] = "Meth"
+
+    def draw(self, pic):
+        arsc = pic.scope(yshift="5.15cm")
+        self.filAriane.draw(arsc)
+
+        thmscope = pic.scope(xshift="-5cm")
+        metsocpe = pic.scope(xshift="5cm")
+
+        match self.mode:
+            case "Init":
+                pass
+            case "Thm":
+                self.theorem.draw(thmscope)
+            case "Meth":
+                self.theorem.draw(thmscope)
+                thmscope.node(r"$\implies$",
+                         at=(-4.2,1.3),
+                         rotate="90",
+                         text="A3",
+                         font="\\small")
+                self.methode.draw(metsocpe)
+
+    def __iter__(self):
+        yield (0, DevTechnique(self.filAriane, self.methode, self.theorem, "Init"))
+        for (d, th) in self.theorem:
+            yield (d+1, DevTechnique(self.filAriane, self.methode, th, "Thm"))
+        for (d, me) in self.methode:
+            yield (d+1, DevTechnique(self.filAriane, me, self.theorem, "Meth"))
+
+        thm = LocalToGlobalThm(LocalisationCycles(),True)
+        yield (1, DevTechnique(self.filAriane, self.methode, thm, "Meth"))
+
+
+@dataclasses.dataclass
+class Research:
+    ariane : FilAriane
+    themes : ThemesAndLocations
+    automates : AutomatesTransducteurs
+    wqos : WQOWorks
+    logique : ThmPreservations
+
+    @staticmethod
+    def default():
+        return Research(
+            ariane=FilAriane(
+                header="Thèmes de recherche",
+                width=8,
+                current=None,
+                titles=["Ordres", "Automates", "Logique"],
+            ),
+            themes=ThemesAndLocations(),
+            automates=AutomatesTransducteurs(),
+            wqos=WQOWorks(
+                       nsquare=NSquareWqo(
+                        points=[(7,3), (8,2), (0,8)],
+                        grid_size=10,
+                       ),
+                   utilite=WqoUtilite(),
+            ),
+            logique=ThmPreservations(
+                    exemple=LosTarskiExemple(),
+                       theorem=LosTarskiThm(),
+                       utilite=LosTarskiUtilite(),
+                   ),
+            )
+
+    def draw(self, pic):
+        if self.ariane.current is None:
+            self.themes.draw(pic)
+        else:
+            arsc = pic.scope(yshift="5.15cm")
+            self.ariane.draw(arsc)
+
+        if self.ariane.current == 1:
+            self.automates.draw(pic)
+        elif self.ariane.current == 0:
+            self.wqos.draw(pic)
+        elif self.ariane.current == 2:
+            self.logique.draw(pic)
+
+    def __iter__(self):
+        yield (0, self)
+        for (d, th) in self.themes:
+            yield (d+1, Research(
+                ariane=self.ariane,
+                themes=th,
+                automates=self.automates,
+                wqos=self.wqos,
+                logique=self.logique,
+            ))
+        for (d, wq) in self.wqos:
+            ar = FilAriane(
+                header=self.ariane.header,
+                width=self.ariane.width,
+                current=0,
+                titles=self.ariane.titles,
+                )
+            yield (d+1, Research(
+                ariane=ar,
+                themes=self.themes,
+                automates=self.automates,
+                wqos=wq,
+                logique=self.logique,
+            ))
+        for (d, at) in self.automates:
+            ar = FilAriane(
+                header=self.ariane.header,
+                width=self.ariane.width,
+                current=1,
+                titles=self.ariane.titles,
+                )
+            yield (d+1, Research(
+                ariane=ar,
+                themes=self.themes,
+                automates=at,
+                wqos=self.wqos,
+                logique=self.logique,
+            ))
+
+        for (d, lo) in self.logique:
+            ar = FilAriane(
+                header=self.ariane.header,
+                width=self.ariane.width,
+                current=2,
+                titles=self.ariane.titles,
+                )
+            yield (d+1, Research(
+                ariane=ar,
+                themes=self.themes,
+                automates=self.automates,
+                wqos=self.wqos,
+                logique=lo,
+            ))
+
+
 
 @dataclasses.dataclass
 class PipelineIngestion:
@@ -857,7 +2229,7 @@ class ProjetPipeline:
                   align="left",
                   font="\\large")
 
-        pic.node(r"\includegraphics[width=8cm]{./simple-for-programs.png}",
+        pic.node(r"\includegraphics[width=8cm]{./images/cliparts/simple-for-programs.png}",
                  at=(-5,-0.8),
                  opacity=(1 if self.showProg else 0.2),
                  anchor="center")
@@ -928,10 +2300,10 @@ class ProjetPipeline:
                      )
 
         if self.showPolycheck:
-            pic.node(r"\includegraphics[width=7cm]{./polycheck.png}",
+            pic.node(r"\includegraphics[width=7cm]{./images/cliparts/polycheck.png}",
                      at=(5,-2.5),
                      anchor="center")
-            pic.node(r"[\textbf{Lopez}, \bsc{Stefański}, preprint]",
+            pic.node(r"[\textbf{Lopez}, \bsc{Stefański}, CAV'25]",
                      at=(5,-2.5),
                      fill="white",
                      draw="A5",
@@ -1115,16 +2487,196 @@ class ProjetSystTrans:
 
 @dataclasses.dataclass
 class Project:
+    pipeline : PipelineIngestion
+    systtrans: ProjetSystTrans
+    polyreg:   ProjetPipeline
+    ariane:    FilAriane
+
+
+    @staticmethod
+    def default():
+        return Project(
+            pipeline=PipelineIngestion(),
+            systtrans=ProjetSystTrans(),
+            polyreg=ProjetPipeline(),
+            ariane=FilAriane(
+                header="Projet de recherche",
+                width=12,
+                current=None,
+                titles=["Systèmes de transition", "Fonctions polyrégulières"],
+            ),
+        )
+
     def draw(self, pic):
-        pass
+        if self.ariane.current is not None:
+            arsc = pic.scope(yshift="5.15cm")
+            self.ariane.draw(arsc)
+
+        if self.ariane.current is None:
+            self.pipeline.draw(pic)
+        elif self.ariane.current == 0:
+            self.systtrans.draw(pic)
+        elif self.ariane.current == 1:
+            self.polyreg.draw(pic)
+
 
     def __iter__(self):
-        yield (0, Project())
+        yield (0, self)
+        for d, pipeline in self.pipeline:
+            yield (1+d, Project(pipeline=pipeline, systtrans=self.systtrans, polyreg=self.polyreg, ariane=self.ariane))
+        for d, systtrans in self.systtrans:
+            ar = FilAriane(
+                header=self.ariane.header,
+                width=self.ariane.width,
+                current=0,
+                titles=self.ariane.titles,
+            )
+            
+            yield (1+d, Project(pipeline=self.pipeline, systtrans=systtrans, polyreg=self.polyreg, ariane=ar))
+
+        for d, polyreg in self.polyreg:
+            ar = FilAriane(
+                header=self.ariane.header,
+                width=self.ariane.width,
+                current=1,
+                titles=self.ariane.titles,
+            )
+            yield (1+d, Project(pipeline=self.pipeline, 
+                                systtrans=self.systtrans, 
+                                polyreg=polyreg, 
+                                ariane=ar))
+
+@dataclasses.dataclass
+class Integration:
+    def draw(self, pic):
+        labo = "LaBRI"
+        equipe = "M2F" 
+        equipe_long = "Modélisation et Méthodes Formelles"
+        sous_equipe = "LX"
+        sous_equipe_long = "Logical foundations of computing"
+
+        themes = [
+            "Automata Theory",
+            "Formal Languages",
+            "Logic in computing",
+            "Algebraic techniques",
+            "Graphs and logics",
+            "Computability theory",
+        ]
+
+        people = [
+            {
+                "name": "Jérôme\\newline Leroux",
+                "picture": "jerome_leroux.jpg",
+                "themes": ["WQO", "VASS"],
+            },
+            {
+                "name": "Sylvain\\newline Lombardy",
+                "picture": "sylvain_lombardy.png",
+                "themes": ["WA"],
+            },
+            {
+                "name": "Joanna\\newline Fijalkow",
+                "picture": "joanna_fijalkow.jpg",
+                "themes": ["FAMT"],
+            },
+            {
+                "name": "Vincent\\newline Penelle",
+                "picture": "vincent_penelle.jpg",
+                "themes": ["WA", "FO"],
+            },
+            {
+                "name": "Thomas\\newline Place",
+                "picture": "thomas_place.jpg",
+                "themes": ["FO"],
+            },
+            {
+                "name": "Marc\\newline Zeitoun",
+                "picture": "marc_zeitoun.jpg",
+                "themes": ["FO"],
+            },
+            {
+                "name": "Igor\\newline Walukiewicz",
+                "picture": "igor_walukiewicz.jpg",
+                "themes": ["AUT"],
+            },
+            {
+                "name": "Nathanaël\\newline Fijalkow",
+                "picture": "nathanael_fijalkow.jpg",
+                "themes": ["AUT"],
+            },
+            {
+                "name": "Hugo\\newline Gimbert",
+                "picture": "hugo_gimbert.jpg",
+                "themes": ["AUT"],
+            },
+        ]
+
+        autre_equipe = "RATIO"
+        divers = [ "Arka Ghosh", "Rémi Morvan" ]
+
+        # create a grid to display the people
+        # we need the positions of the center
+        # of each image, in a grid with 3 columns
+        grid = [
+                (
+                    i // 3,
+                    i % 3,
+                )
+                for i in range(len(people))
+        ]
+        gscale = lambda p: (p[0]*3-3, p[1]*2.5-3)
+
+        for people,pos in zip(people, grid):
+            pos = gscale(pos)
+            pic.node(r"\includegraphics[width=1.5cm,height=1.5cm,keepaspectratio]{./images/people/%s}" % people["picture"],
+                     at=pos,
+                     anchor="center",
+                     fill="white",
+                     inner_sep=0,
+                     minimum_height="1.5cm",
+                     minimum_width="1.5cm",
+                     rounded_corners="2mm",
+                     )
+
+            pic.node(people["name"],
+                     at=(pos[0], pos[1]-1.2),
+                     anchor="center",
+                     font="\\small\\scshape",
+                     text_width="2cm")
+ 
+
+        pic.node(r"Intégration",
+                 at=(0,4.5),
+                 font="\\bfseries\\Large\\scshape", anchor="center")
+
+
+
+    def __iter__(self):
+        yield (0, Integration())
+
+
 
 @dataclasses.dataclass
 class Conclusion:
     def draw(self, pic):
-        pass
+        pic.node(r"\includegraphics[trim={0 0 0 3.7cm},clip,width=20cm]{./images/cliparts/bordeaux.png}",
+                 at=(0,0),
+                 inner_sep=0,
+                 opacity=0.1,
+                 anchor="center")
+
+        pic.node(r"\textbf{Conclusion}",
+                 at=(0,4.5),
+                 font="\\Large\\scshape", anchor="center")
+
+        pic.node(r"Un \underline{exemple} de programme utilisant des données",
+                 at=(0,3.5),
+                 font="\\large\\scshape", anchor="center")
+
+        pic.node(r"Merci pour votre attention",
+                 at=(0,-4.5),
+                 font="\\Large\\scshape", anchor="center")
 
     def __iter__(self):
         yield (0, Conclusion())
@@ -1134,6 +2686,8 @@ class Conclusion:
 # create a presentation
 
 if __name__ == "__main__":
+
+    tc = TableOfColors()
 
     tf = TitleFrame(with_name=True)
     qs = QuiSuisJe(bib=Bibliometrie())
@@ -1148,29 +2702,27 @@ if __name__ == "__main__":
 
     auto = AutomatesTransducteurs()
 
-    rs = Research()
+    rs = Research.default()
     te = Teaching()
-    pr = Project()
+    pr = Project.default()
     pip = PipelineIngestion()
     pstr = ProjetSystTrans()
     pipl = ProjetPipeline()
+
+    it = Integration()
 
     co = Conclusion()
 
     frames_list = [
         tf,
         qs,
-        wqo,
-        auto,
         rs,
         te,
-        pip,
-        pstr,
-        pipl,
         pr,
+        it,
         co,
     ]   
 
-    frames = Sequential(frames_list, pos=0)
+    frames = Sequential([it,co],pos=0)
 
     preview_animation(frames)
