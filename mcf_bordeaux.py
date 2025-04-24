@@ -2625,11 +2625,13 @@ class Integration:
                 )
                 for i in range(len(people))
         ]
-        gscale = lambda p: (p[0]*3-3, p[1]*2.5-3)
+        gscale = lambda p: (p[0]*2.5-3, p[1]*2.5-3)
+
+        trombsc = pic.scope(xshift="-5cm", yshift="0cm")
 
         for people,pos in zip(people, grid):
             pos = gscale(pos)
-            pic.node(r"\includegraphics[width=1.5cm,height=1.5cm,keepaspectratio]{./images/people/%s}" % people["picture"],
+            trombsc.node(r"\includegraphics[width=1.5cm,height=1.5cm,keepaspectratio]{./images/people/%s}" % people["picture"],
                      at=pos,
                      anchor="center",
                      fill="white",
@@ -2639,7 +2641,7 @@ class Integration:
                      rounded_corners="2mm",
                      )
 
-            pic.node(people["name"],
+            trombsc.node(people["name"],
                      at=(pos[0], pos[1]-1.2),
                      anchor="center",
                      font="\\small\\scshape",
