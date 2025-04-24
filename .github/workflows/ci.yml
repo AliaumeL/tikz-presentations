@@ -23,6 +23,7 @@ jobs:
       - name: Compile Latex Document
         uses: xu-cheng/latex-action@v3
         with:
+          latexmk_use_xelatex: true
           root_file: |
             preview.tex
       - name: Upload PDFs
