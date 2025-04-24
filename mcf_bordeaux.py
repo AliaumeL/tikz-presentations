@@ -2725,7 +2725,7 @@ if __name__ == "__main__":
         co,
     ]   
 
-    frames = Sequential([it,co],pos=0)
+    frames = Sequential(frames_list,pos=0)
 
     # preview_animation(frames)
     with open("preview.tex", "w") as f:
