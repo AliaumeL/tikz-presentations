@@ -231,6 +231,35 @@ class ThemesAndLocations:
                 align="center",
             ) 
 
+        labs = [
+                { "logo": "./images/institutions/irif.pdf" },
+                { "logo": "./images/institutions/lmf.pdf" },
+                { "logo": "./images/institutions/university_of_warsaw.pdf" },
+                { "logo": "./images/institutions/mpi-sws.pdf" },
+                { "logo": "./images/institutions/lis-marseille.pdf" },
+                { "logo": "./images/institutions/labri.pdf" },
+        ]
+
+        # split logos in two groups of equal size
+        half = len(labs) // 2
+        labs1 = labs[:half]
+        labs2 = labs[half:]
+        scope1 = pic.scope(xshift="-7cm", yshift="2.5cm")
+        scope2 = pic.scope(xshift="7cm", yshift="2.5cm")
+        for (scope,labs) in [(scope1,labs1),(scope2,labs2)]:
+            for i, lab in enumerate(labs):
+                x = 0
+                y = -i * 2
+                scope.draw(
+                    (x, y),
+                    node(
+                        r"""
+                        \includegraphics[width=2cm]{""" + lab["logo"] + r"""}""",
+                        anchor="center",
+                    ),
+                    thick=True,
+                )
+
 
     def __iter__(self):
         yield (0, ThemesAndLocations())
