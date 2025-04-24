@@ -2727,4 +2727,7 @@ if __name__ == "__main__":
 
     frames = Sequential([it,co],pos=0)
 
-    preview_animation(frames)
+    # preview_animation(frames)
+    with open("preview.tex", "w") as f:
+        print(tikz_of_animation(anim))
+        f.write(tikz_of_animation(anim))
