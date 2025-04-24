@@ -1,5 +1,3 @@
-
-
 from tikz import *
 
 import math
@@ -12,11 +10,11 @@ from utils import *
 
 @dataclasses.dataclass
 class Cycle:
-    size:   int
+    size: int
     radius: float | int
-    
+
     verticesProps: List[dict] = dataclasses.field(default_factory=list)
-    edgesProps:    dict[Tuple[int,int], dict] = dataclasses.field(default_factory=dict)
+    edgesProps: dict[Tuple[int, int], dict] = dataclasses.field(default_factory=dict)
 
     def draw(self, pic):
         for i in range(self.size):
@@ -26,16 +24,17 @@ class Cycle:
             prps = self.verticesProps[i] if i < len(self.verticesProps) else {}
             n = prps.get("name", f"v{i}")
             myProps = {
-                     "at": (x, y),
-                     "circle": True,
-                     "inner_sep": "2pt",
-                     "draw": True,
-                     "name": n }
-            pic.node("", **(prps | myProps ))
+                "at": (x, y),
+                "circle": True,
+                "inner_sep": "2pt",
+                "draw": True,
+                "name": n,
+            }
+            pic.node("", **(prps | myProps))
 
         for i in range(self.size):
             pi = self.verticesProps[i] if i < len(self.verticesProps) else {}
-            j = (i+1)%self.size
+            j = (i + 1) % self.size
             pj = self.verticesProps[j] if j < len(self.verticesProps) else {}
             ni = pi.get("name", f"v{i}")
             nj = pj.get("name", f"v{j}")
@@ -44,26 +43,28 @@ class Cycle:
     def __iter__(self):
         yield (0, self)
 
+
 @dataclasses.dataclass
 class Path:
     length: int
 
     def draw(self, pic):
-        start = -(self.length-1)/2
+        start = -(self.length - 1) / 2
         for i in range(self.length):
-            pic.node("",
-                     at=(start + i,0),
-                     circle=True,
-                     draw=True,
-                     inner_sep="2pt",
-                     name=f"v{i}")
+            pic.node(
+                "",
+                at=(start + i, 0),
+                circle=True,
+                draw=True,
+                inner_sep="2pt",
+                name=f"v{i}",
+            )
 
-        for i in range(self.length-1):
+        for i in range(self.length - 1):
             pic.draw(f"(v{i})", topath(f"(v{i+1})"))
 
     def __iter__(self):
         yield (0, self)
-
 
 
 @dataclasses.dataclass
@@ -77,19 +78,14 @@ class Clique:
             angle = 2 * math.pi * i / self.size
             x = self.radius * math.cos(angle)
             y = self.radius * math.sin(angle)
-            pic.node("",
-                     at=(x, y),
-                     circle=True,
-                     inner_sep="2pt",
-                     draw=True,
-                     name=f"v{i}")
+            pic.node(
+                "", at=(x, y), circle=True, inner_sep="2pt", draw=True, name=f"v{i}"
+            )
 
         # draw all edges
         for i in range(self.size):
-            for j in range(i+1, self.size):
+            for j in range(i + 1, self.size):
                 pic.draw(f"(v{i})", topath(f"(v{j})"))
 
     def __iter__(self):
         yield (0, self)
-
-
