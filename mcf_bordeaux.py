@@ -2729,5 +2729,4 @@ if __name__ == "__main__":
 
     # preview_animation(frames)
     with open("preview.tex", "w") as f:
-        print(tikz_of_animation(anim))
-        f.write(tikz_of_animation(anim))
+        f.write(tikz_of_animation(frames))
