@@ -13,7 +13,7 @@ TITLE = "Aliaume Lopez"
 LOCATION = "Bordeaux"
 DATE = "2025-05-06"
 
-IS_DRAFT = True
+IS_DRAFT =  False # True
 
 cAut = "A4"
 cWA = "A3"
