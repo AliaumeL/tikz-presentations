@@ -29,10 +29,72 @@ with open("./data/aliaume-cv.yaml", "r") as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
+
+@dataclasses.dataclass
+class TitleFrame:
+    with_name: bool
+
+    def draw(self, pic: Picture):
+        scope = pic.scope(yshift="3cm")
+
+        scope.node(
+            "Concours MCF Section 27",
+            at=(0, 1.5),
+            anchor="center",
+            font="\\Huge\\scshape",
+            color="A4",
+        )
+        scope.node(
+            "Offre 251816",
+            at=(0, 0.5),
+            anchor="center",
+            font="\\huge\\scshape",
+            color="A4",
+        )
+
+        scope.node(
+            "Logique Monadique du Second Ordre et Beaux Préordres",
+            at=(0, -1),
+            anchor="center",
+            align="center",
+            color="A3",
+            text_width="16cm",
+            font="\\Large\\scshape",
+        )
+        scope.node("pour les", at=(0, -1.5), anchor="center", font="\\Large\\scshape")
+        scope.node(
+            "Méthodes Formelles",
+            color="A5",
+            at=(0, -2),
+            anchor="center",
+            font="\\Large\\scshape",
+        )
+
+        if self.with_name:
+            pic.draw((0, -1), node("Aliaume Lopez", anchor="center", font="\\Large"))
+            pic.draw((0, -1.5), node("Université de Varsovie", anchor="center"))
+            pic.draw((0, -3), node(f"à {LOCATION}", anchor="center", font="\\Large"))
+            pic.draw((0, -3.5), node(f"le {DATE}", anchor="center"))
+            pic.draw((6, -2), node(r"\qrcode{https://www.irif.fr/~alopez/}"))
+            pic.draw((6, -3.5), node(r"\url{https://www.irif.fr/~alopez/}"))
+
+            logos = [
+                "images/institutions/university_of_warsaw.pdf",
+                "images/institutions/zigmunt_zaleski_stitching.png",
+            ]
+            for i, logo in enumerate(logos):
+                pic.draw(
+                    (-4 - 3 * i, -2),
+                    node(f"\\includegraphics[width=2cm]{{{logo}}}", anchor="center"),
+                )
+
+    def __iter__(self):
+        yield (0, self)
+
+
 @dataclasses.dataclass
 class Teachometrie:
     def draw(self, pic):
-
         pic.style(
             "category",
             text_width="6cm",
@@ -75,7 +137,6 @@ class Teachometrie:
 @dataclasses.dataclass
 class Bibliometrie:
     def draw(self, pic):
-
         conf_mult = [
             "CSL'17",
             "QPL'17",
@@ -250,19 +311,18 @@ class ExtraTeachingPower:
     def draw(self, pic):
         extras = [
             {"title": "Agrégation Math. Info.", "color": "D2"},
-            {"title": "Développeur Fullstack", "color": "D2"},
+            {"title": "Développeur Fullstack (ASN)", "color": "D2"},
             {"title": "Projets Personnels", "color": "D2"},
             {"title": "Encadrement (2 mois, L2)", "color": "D2"},
         ]
 
         logos = [
             "./images/software/docker.png",
-            "./images/software/linux.png",
+            "./images/software/nix.png",
             "./images/software/yunohost.png",
             "./images/software/github.png",
             "./images/software/haskell.png",
             "./images/software/rust.png",
-            "./images/software/nix.png",
         ]
 
         for i, extras in enumerate(extras):
@@ -392,7 +452,6 @@ class TeachingNeeds:
     detailed: bool = False
 
     def draw(self, pic):
-
         besoins = [
             {
                 "title": "Informatique Théorique",
@@ -515,7 +574,6 @@ class TeachingNeeds:
 
 @dataclasses.dataclass
 class Teaching:
-
     extras: bool = True
     fullsize: bool = False
     needs: bool = False
@@ -643,7 +701,6 @@ class NSquareWqo:
         columns = [[(0, j), (n, j)] for j in range(0, n, step)]
 
         for x, y in self.points:
-
             pic.draw(
                 (x * step, y * step),
                 lineto((x * step, self.grid_size)),
@@ -713,7 +770,6 @@ class NSquareWqo:
 @dataclasses.dataclass
 class WqoUtilite:
     def draw(self, pic):
-
         pic.style("txt", text_width="4cm", anchor="north west", align="left")
         pic.style("titl", txt=True, font="\\scshape\\bfseries")
 
@@ -731,23 +787,28 @@ class WqoUtilite:
             text_width="8cm",
             at=(0, -4.5),
         )
-        pic.node(r"\includegraphics[width=2cm]{./images/science/petri_net.png}",
-                 at=(3,-6),
-                 )
+        pic.node(
+            r"\includegraphics[width=2cm]{./images/science/petri_net.png}",
+            at=(3, -6),
+        )
 
         pic.node(r"Graphes", titl=True, at=(0, -0.3))
         pic.node(r"\bsc{Robertson} \& \bsc{Seymour}", txt=True, at=(0, -1))
         pic.node(r"Mineurs de graphes", txt=True, at=(0, -1.5))
-        pic.node(r"\includegraphics[width=2cm]{./images/science/graph_minor.png}",
-                 at=(2,1),
-                 anchor="center")
+        pic.node(
+            r"\includegraphics[width=2cm]{./images/science/graph_minor.png}",
+            at=(2, 1),
+            anchor="center",
+        )
 
         pic.node(r"Algèbre", titl=True, at=(5, -0.3))
         pic.node(r"\bsc{Hilbert} / \bsc{Gröbner}", txt=True, at=(5, -1))
         pic.node(r"Calcul symbolique", txt=True, at=(5, -1.5))
-        pic.node(r"\includegraphics[height=2cm]{./images/science/cox_little_shea.jpg}",
-                 at=(5,1),
-                 anchor="center")
+        pic.node(
+            r"\includegraphics[height=2cm]{./images/science/cox_little_shea.jpg}",
+            at=(5, 1),
+            anchor="center",
+        )
 
     def __iter__(self):
         yield (0, WqoUtilite())
@@ -893,9 +954,9 @@ class MSOOddEven:
 
 @dataclasses.dataclass
 class AutomatesTransducteurs:
-
     automa: bool = True
     verif: bool = True
+    aperiodiq: bool = True
     publis: bool = True
 
     def draw(self, pic):
@@ -926,11 +987,7 @@ class AutomatesTransducteurs:
         visionsc.draw("(expr)", topath("(mono)"), opt="<->")
         visionsc.draw("(expr)", topath("(aut)"), opt="<->")
 
-        visionsc.node("GNU Grep",
-                      align="center",
-                      rotate="20",
-                      color="A4",
-                      at=(2,1.5))
+        visionsc.node("GNU Grep", align="center", rotate="20", color="A4", at=(2, 1.5))
         visionsc.node(
             r"\textbf{Langages} $L \colon \Sigma^* \to \mathsf{Bool}$",
             txt=True,
@@ -947,26 +1004,25 @@ class AutomatesTransducteurs:
                 text_width="7cm",
                 at=(0, -4),
             )
-            verifscope.node(r"$f = g$? $f = 0$? $\exists g \in \mathsf{FO}, f = g$? ...",
-                            at=(3.5,-5.5),
-                            color="A4")
+            verifscope.node(
+                r"$f = g$? $f = 0$? $\exists g \in \mathsf{FO}, f = g$? ...",
+                at=(3.5, -5.5),
+                color="A4",
+            )
 
             verifscope.node(r"Quantitatif", titl=True, at=(0, -0.3))
             verifscope.node(r"$f \colon \Sigma^* \to \mathbb{N}$", txt=True, at=(0, -1))
             verifscope.node(r"\emph{Automates pondérés}", txt=True, at=(0, -1.5))
-            verifscope.node(r"$w \mapsto 2^{|w|} \times |w|_a$",
-                            at=(1.5,0),
-                            color="A4")
-
+            verifscope.node(
+                r"$w \mapsto 2^{|w|} \times |w|_a$", at=(1.5, 0), color="A4"
+            )
 
             verifscope.node(r"Qualitatif", titl=True, at=(5, -0.3))
             verifscope.node(r"$f \colon \Sigma^* \to \Gamma^*$", txt=True, at=(5, -1))
             verifscope.node(
                 r"\emph{Fonctions (poly)régulières}", txt=True, at=(5, -1.5)
             )
-            verifscope.node(r"$w \mapsto w \# w$",
-                            at=(6.5,0),
-                            color="A4")
+            verifscope.node(r"$w \mapsto w \# w$", at=(6.5, 0), color="A4")
 
         if self.automa:
             visionsc.node(
@@ -1000,6 +1056,22 @@ class AutomatesTransducteurs:
                 anchor="center",
             )
 
+        if self.aperiodiq:
+            visionsc.style(
+                "fotxt",
+                text_width="2cm",
+                rounded_corners="2mm",
+                draw="C2",
+                thick=True,
+                fill="C2hint",
+                text="C2",
+            )
+
+            visionsc.node(r"$\mathsf{FO}$", fotxt=True, at="(log)")
+            visionsc.node(r"Apériodique", fotxt=True, at="(mono)")
+            visionsc.node(r"Sans-étoile", fotxt=True, at="(expr)")
+            visionsc.node(r"Sans-compteurs", fotxt=True, at="(aut)")
+
         if self.publis:
             pic.node(
                 r"""
@@ -1030,9 +1102,9 @@ class AutomatesTransducteurs:
             )
 
     def __iter__(self):
-        yield (0, AutomatesTransducteurs(False, False, False))
-        for i in range(1, 4):
-            yield (1, AutomatesTransducteurs(i >= 1, i >= 2, i >= 3))
+        yield (0, AutomatesTransducteurs(False, False, False, False))
+        for i in range(1, 5):
+            yield (1, AutomatesTransducteurs(i >= 1, i >= 2, i >= 3, i >= 4))
 
 
 @dataclasses.dataclass
@@ -1088,7 +1160,7 @@ class Path:
             )
 
         for i in range(self.length - 1):
-            pic.draw(f"(v{i})", topath(f"(v{i+1})"))
+            pic.draw(f"(v{i})", topath(f"(v{i + 1})"))
 
     def __iter__(self):
         yield (0, self)
@@ -1152,7 +1224,7 @@ class LosTarskiExemple:
         for i, (ex, b) in enumerate(exs):
             if self.exemples is not None and i >= self.exemples:
                 break
-            sex = pic.scope(xshift=f"{-4 + i*3}cm", yshift="1cm")
+            sex = pic.scope(xshift=f"{-4 + i * 3}cm", yshift="1cm")
             ex.draw(sex)
             col = "A5" if b == "oui" else "A2"
             pic.node(f"$\\models \\varphi$? {b}", at=(-4 + i * 3, -0.5), color=col)
@@ -1234,7 +1306,6 @@ class LosTarskiThm:
     mainThrm: bool = True
 
     def draw(self, pic):
-
         if self.mainThrm:
             ltrsk = pic.scope(xshift="-5cm", yshift="3cm")
 
@@ -1296,10 +1367,14 @@ class LosTarskiUtilite:
             at=(0, -1.5),
         )
 
-        pic.node(r"\includegraphics[height=2cm]{./images/science/libkin_fmt.jpg}",
-                 at=(5, 0.5))
-        pic.node(r"\includegraphics[height=2cm]{./images/science/pom_nesetril_sparsity.jpg}",
-                 at=(7, -4.5))
+        pic.node(
+            r"\includegraphics[height=2cm]{./images/science/libkin_fmt.jpg}",
+            at=(5, 0.5),
+        )
+        pic.node(
+            r"\includegraphics[height=2cm]{./images/science/pom_nesetril_sparsity.jpg}",
+            at=(7, -4.5),
+        )
 
     def __iter__(self):
         yield (0, LosTarskiUtilite())
@@ -1599,9 +1674,8 @@ class RelatLosTarski:
 @dataclasses.dataclass
 class LosTarskiFiniteClasses:
     cycles: CyclesLosTarski
-    paths:  CheminsLosTarski
-    puc:    CyclesUCheminsNotLosTarski
-
+    paths: CheminsLosTarski
+    puc: CyclesUCheminsNotLosTarski
 
     min_relat: bool = False
     show_cls: bool = False
@@ -1610,16 +1684,13 @@ class LosTarskiFiniteClasses:
     @staticmethod
     def default():
         return LosTarskiFiniteClasses(
-                cycles=CyclesLosTarski(),
-                paths =CheminsLosTarski(),
-                puc   =CyclesUCheminsNotLosTarski(),
-                )
+            cycles=CyclesLosTarski(),
+            paths=CheminsLosTarski(),
+            puc=CyclesUCheminsNotLosTarski(),
+        )
 
     def draw(self, pic):
-
-        pic.node(r"Exemple de question technique",
-                 at=(0,5),
-                 font=r"\Large\scshape")
+        pic.node(r"Exemple de question technique", at=(0, 5), font=r"\Large\scshape")
 
         if self.min_relat:
             pic.node(drawing_to_node(RelatLosTarski(), 4), at=(5, 3), fill="white")
@@ -1742,8 +1813,6 @@ class LosTarskiFiniteClasses:
                 fill="D4hint",
             )
 
-
-
     def __iter__(self):
         yield (
             0,
@@ -1763,7 +1832,6 @@ class LosTarskiFiniteClasses:
                 min_relat=True,
             ),
         )
-
 
         yield (
             1,
@@ -1965,7 +2033,6 @@ class LocalToGlobalMethod:
     conclusion: bool = True
 
     def draw(self, pic):
-
         pic.node(
             r"\textbf{Ré-écriture des formules}",
             at=(0, 3.2),
@@ -2043,13 +2110,11 @@ class LocalToGlobalMethod:
 
 @dataclasses.dataclass
 class DevTechnique:
-
     filAriane: FilAriane
     methode: LocalToGlobalMethod
     theorem: LocalToGlobalThm
 
     mode: Literal["Init", "Thm", "Meth"] = "Meth"
-
 
     def draw(self, pic):
         arsc = pic.scope(yshift="5.15cm")
@@ -2104,7 +2169,7 @@ class Research:
             automates=AutomatesTransducteurs(),
             wqos=WQOWorks(
                 nsquare=NSquareWqo(
-                    points=[(7,3), (5,6), (0,8), (8,0)],
+                    points=[(7, 3), (5, 6), (0, 8), (8, 0)],
                     grid_size=10,
                 ),
                 utilite=WqoUtilite(),
@@ -2189,7 +2254,6 @@ class PipelineIngestion:
     mode: Literal["Init", "Pipeline", "Interaction", "Verif"] = "Verif"
 
     def draw(self, pic):
-
         pic.node(
             r"\includegraphics[width=19cm]{./images/science/flamanville.jpg}",
             at=(0, 0),
@@ -2328,7 +2392,6 @@ class PolyregPonderes:
     exp: bool = False
 
     def draw(self, pic):
-
         pic.style(
             "guessed",
             text="C1",
@@ -2389,7 +2452,6 @@ class PolyregPonderes:
 
 @dataclasses.dataclass
 class ProjetPipeline:
-
     showProg: bool = False
     showProb: bool = True
     showUnaire: bool = True
@@ -2509,7 +2571,6 @@ class ProjetPipeline:
 
 @dataclasses.dataclass
 class ProjetSystTrans:
-
     showPartiPris: bool = True
     showProb: bool = True
     showWqo: bool = True
@@ -2519,7 +2580,6 @@ class ProjetSystTrans:
     showBDD: bool = True
 
     def draw(self, pic):
-
         pic.style(
             "lbl", anchor="north west", text_width="8cm", align="left", font="\\large"
         )
@@ -2869,7 +2929,6 @@ class IntegrationBonus:
 
 @dataclasses.dataclass
 class Trombinoscope:
-
     themes: List[str]
 
     @staticmethod
@@ -3063,25 +3122,21 @@ class Conclusion:
             anchor="center",
         )
 
-
         tscope = pic.scope(yshift="4.5cm", xshift="-5cm")
         Teachometrie().draw(tscope)
 
-        pic.node(r"\textbf{Niveaux}: L1 / L2 / L3 / M1",
-                 at=(-5,1.5),
-                 text_width="6cm")
-        pic.node(r"\textbf{Type}: Université / École",
-                 at=(-5,1),
-                 text_width="6cm")
+        pic.node(r"\textbf{Niveaux}: L1 / L2 / L3 / M1", at=(-5, 1.5), text_width="6cm")
+        pic.node(r"\textbf{Type}: Université / École", at=(-5, 1), text_width="6cm")
 
-        pic.node(r"\textbf{Césure}: Développeur Fullstack",
-                 at=(-5,0),
-                 text_width="6cm")
-        pic.node(r"Autorité de Sûreté Nucléaire",
-                 at=(-5,-0.5),
-                 font=r"\itshape",
-                 text_width="6cm")
-
+        pic.node(
+            r"\textbf{Césure}: Développeur Fullstack", at=(-5, 0), text_width="6cm"
+        )
+        pic.node(
+            r"Autorité de Sûreté Nucléaire",
+            at=(-5, -0.5),
+            font=r"\itshape",
+            text_width="6cm",
+        )
 
         pic.node(
             r"""
@@ -3099,9 +3154,6 @@ class Conclusion:
             inner_sep="1em",
             text_width="6cm",
         )
-
-
-
 
         bibscope = pic.scope(yshift="-1.8cm", xshift="5cm")
         Bibliometrie().draw(bibscope)
@@ -3155,7 +3207,6 @@ class Conclusion:
 # create a presentation
 
 if __name__ == "__main__":
-
     tc = TableOfColors()
 
     tf = TitleFrame(with_name=True)

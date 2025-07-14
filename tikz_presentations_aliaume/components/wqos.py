@@ -44,7 +44,6 @@ class NSquareWqo:
         columns = [[(0, j), (n, j)] for j in range(0, n, step)]
 
         for x, y in self.points:
-
             pic.draw(
                 (x * step, y * step),
                 lineto((x * step, self.grid_size)),
@@ -114,7 +113,6 @@ class NSquareWqo:
 @dataclasses.dataclass
 class WqoUtilite:
     def draw(self, pic):
-
         pic.style("txt", text_width="4cm", anchor="north west", align="left")
         pic.style("titl", txt=True, font="\\scshape\\bfseries")
 
@@ -368,7 +366,6 @@ class StateOfTheArt:
     show_conj: bool = True
 
     def draw(self, pic: Picture):
-
         with open("papers.bib") as bibtex_file:
             bib = bibtexparser.load(bibtex_file)
 
@@ -506,7 +503,7 @@ class FinitePaths:
                 )
 
             for i in range(3):
-                pic.draw(f"(A{i})", topath(f"(A{i+1})"))
+                pic.draw(f"(A{i})", topath(f"(A{i + 1})"))
 
             for j in range(7):
                 color = "A4" if frame >= 3 and (j == 0 or j == 6) else "A1"
@@ -521,12 +518,12 @@ class FinitePaths:
                     inner_sep="0pt",
                 )
             for i in range(6):
-                pic.draw(f"(B{i})", topath(f"(B{i+1})"))
+                pic.draw(f"(B{i})", topath(f"(B{i + 1})"))
 
         if frame == 2 or frame == 3:
             for i in range(4):
                 pic.draw(
-                    f"(A{i})", topath(f"(B{i+1})"), opt="->", thick=True, color="C3"
+                    f"(A{i})", topath(f"(B{i + 1})"), opt="->", thick=True, color="C3"
                 )
 
         if frame >= 4:

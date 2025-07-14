@@ -6,6 +6,186 @@ from typing import Literal, Generator, Callable, List, Union, Tuple, Optional
 import random
 
 
+@dataclasses.dataclass
+class Progress:
+    current: int
+    depths: List[int]
+
+
+@dataclasses.dataclass
+class PresConfig:
+    ratio: Tuple[int, int] = (16, 9)
+    width: int = 20
+    title: str = "Please select title"
+    location: str = "Please select location"
+    author: str = "Please define author"
+    date: str = "Please select date"
+    draft: bool = True
+    packgages: List[str] = dataclasses.field(default_factory=list)
+
+    @property
+    def height(self):
+        return int((self.width * self.ratio[1]) / self.ratio[0])
+
+    def preview(self, anim):
+        with open("preview.tex", "w") as f:
+            f.write(self.to_tikz(anim))
+        os.system("xelatex preview.tex")
+        # if osx, then open, else xdg-open
+        if os.name == "posix":
+            if os.uname().sysname == "Darwin":
+                os.system("open preview.pdf")
+            else:
+                # spawn and do not wait for the process
+                os.system("xdg-open preview.pdf &")
+        print("DONE.")
+
+    def to_tikz(self, anim) -> str:
+        slides = list(self.to_slide_with_depth(anim))
+        packages = ["ensps-colorscheme", "amsmath", "amsfonts", "qrcode", "amssymb"]
+        imports = "\n".join(f"\\usepackage{{{p}}}" for p in packages)
+
+        depths = [0.5 / (d + 1) for d, _ in slides]
+
+        code = "\n\n\n".join(
+            [
+                f"% Frame number {num}, animation depth {d} \n"
+                + self.frame(p, Progress(num, depths)).code()
+                for num, (d, p) in enumerate(slides)
+            ]
+        )
+
+        return r"""
+    \documentclass[tikz,9pt]{{standalone}}
+    \usepackage[maxbibnames=99,
+        style=alphabetic,
+        backend=biber,
+        sorting=ydnt,
+    ]{{biblatex}}
+    \usepackage{{hyperref}}
+    \hypersetup{{
+        hidelinks,
+        colorlinks,
+        anchorcolor=A2,
+        linkcolor=A4,
+        citecolor=Prune,
+    }}
+    \usepackage[french]{{babel}}
+    \usepackage{{csquotes}}
+    \usepackage{{fontspec}}
+    \usepackage{{booktabs}}
+    \setmainfont{{EB Garamond}}
+    \usetikzlibrary{{decorations.markings}}
+    \usetikzlibrary{{decorations.pathmorphing,shapes}}
+    \usetikzlibrary{{decorations.pathreplacing}}
+    \usetikzlibrary{{arrows}}
+    \usetikzlibrary{{automata}}
+    \addbibresource{{papers.bib}}
+    \usepackage{{pifont}}% http://ctan.org/pkg/pifont
+    \newcommand{{\cmark}}{{\ding{{51}}}}%
+    \newcommand{{\xmark}}{{\ding{{55}}}}%
+    {imports}
+    \begin{{document}}
+    {code}
+    \end{{document}}
+    """.format(code=code, imports=imports)
+
+    def to_slide(self, anim) -> Generator[Picture, None, None]:
+        for state in anim:
+            pic = Picture()
+            state.draw(pic)
+            yield pic
+
+    def to_slide_with_depth(self, anim) -> Generator[Tuple[int, Picture], None, None]:
+        for depth, state in anim:
+            pic = Picture()
+            state.draw(pic)
+            yield (depth, pic)
+
+    def frame(self, pic: Picture, p: Progress) -> Picture:
+        i = p.current
+        pic.draw((0, 0), node("\\hypertarget{page-" + str(i + 1) + "}{}"), opacity=0)
+
+        if i > 0:
+            pic.draw(
+                (self.width / 2, self.height / 2),
+                node(TITLE, anchor="north east", font=r"\scshape"),
+            )
+            pic.draw(
+                (-self.width / 2, self.height / 2),
+                node(
+                    f"{self.date} [{self.location}]",
+                    anchor="north west",
+                    font=r"\scshape",
+                ),
+            )
+
+        if self.draft:
+            pic.draw(
+                (self.width / 2, -self.height / 2),
+                rectangle((-self.width / 2, self.height / 2)),
+            )
+            return pic
+        else:
+            return self.progress(p, pic)
+
+    def progress(self, p: Progress, pic: Picture) -> Picture:
+        i = p.current
+        total = len(p.depths)
+        totalTop = len([x for x in p.depths if x == 0.5])
+        currentTop = len([x for x in p.depths[: i + 1] if x == 0.5])
+
+        for j, depth in enumerate(p.depths):
+            upleft = (
+                -self.width / 2 + j * self.width / total,
+                -self.height / 2 + depth,
+            )
+            downright = (
+                -self.width / 2 + (j + 1) * self.width / total,
+                -self.height / 2,
+            )
+
+            if j == i:
+                pic.path(upleft, rectangle(downright), fill="D3", draw="A1")
+            elif j < i:  # slides already seen
+                pic.path(upleft, rectangle(downright), fill="D4", draw="A1")
+            else:  # slides to come
+                pic.path(upleft, rectangle(downright), fill="D1", draw="A1")
+
+            lw = "{:.2f}".format(abs(upleft[0] - downright[0]) * 0.9)
+            lh = "{:.2f}".format(abs(upleft[1] - downright[1]) * 0.9)
+            pic.node(
+                r"\hyperlink{page-"
+                + str(j + 1)
+                + "}{\\phantom{\\rule{"
+                + lw
+                + "cm}{"
+                + lh
+                + "cm}}}",
+                align="left",
+                at=downright,
+                inner_sep="0pt",
+                anchor="south east",
+                color="A1",
+            )
+
+        pic.draw(
+            (-self.width / 2, self.height / 2),
+            rectangle((self.width / 2, -self.height / 2)),
+        )
+        pic.draw(
+            (self.width / 2, -self.height / 2 + 0.5),
+            node(
+                f"\\strut {currentTop}/{totalTop}",
+                anchor="south east",
+                align="right",
+                text_width="3cm",
+            ),
+        )
+
+        return pic
+
+
 RATIO = 16 / 9
 WIDTH = 20
 HEIGHT = WIDTH / RATIO
@@ -13,7 +193,7 @@ TITLE = "Aliaume Lopez"
 LOCATION = "Bordeaux"
 DATE = "2025-05-06"
 
-IS_DRAFT =  False # True
+IS_DRAFT = False  # True
 
 cAut = "A4"
 cWA = "A3"
@@ -81,9 +261,7 @@ def tikz_of_animation(anim):
 \begin{{document}}
 {code}
 \end{{document}}
-""".format(
-        code=code, imports=imports
-    )
+""".format(code=code, imports=imports)
 
 
 def to_slide(anim):
@@ -200,6 +378,22 @@ class Sequential:
                 yield x
 
 
+@dataclasses.dataclass
+class SequentialAnimation:
+    frames: list
+    pos: int
+
+    def draw(self, pic: Picture):
+        self.frames[self.pos].draw(pic)
+
+    def __iter__(self):
+        notFirst = 0
+        for f in self.frames:
+            for d, s in f:
+                yield (d + notFirst, s)
+            notFirst = 1
+
+
 def drawing_to_node(d, size: float):
     pic = Picture()
     d.draw(pic)
@@ -281,68 +475,6 @@ class TableOfColors:
 
     def __iter__(self):
         yield (0, TableOfColors())
-
-
-@dataclasses.dataclass
-class TitleFrame:
-    with_name: bool
-
-    def draw(self, pic: Picture):
-        scope = pic.scope(yshift="3cm")
-
-        scope.node(
-            "Concours MCF Section 27",
-            at=(0, 1.5),
-            anchor="center",
-            font="\\Huge\\scshape",
-            color="A4",
-        )
-        scope.node(
-            "Offre 251816",
-            at=(0, 0.5),
-            anchor="center",
-            font="\\huge\\scshape",
-            color="A4",
-        )
-
-        scope.node(
-            "Logique Monadique du Second Ordre et Beaux Préordres",
-            at=(0, -1),
-            anchor="center",
-            align="center",
-            color="A3",
-            text_width="16cm",
-            font="\\Large\\scshape",
-        )
-        scope.node("pour les", at=(0, -1.5), anchor="center", font="\\Large\\scshape")
-        scope.node(
-            "Méthodes Formelles",
-            color="A5",
-            at=(0, -2),
-            anchor="center",
-            font="\\Large\\scshape",
-        )
-
-        if self.with_name:
-            pic.draw((0, -1), node("Aliaume Lopez", anchor="center", font="\\Large"))
-            pic.draw((0, -1.5), node("Université de Varsovie", anchor="center"))
-            pic.draw((0, -3), node(f"à {LOCATION}", anchor="center", font="\\Large"))
-            pic.draw((0, -3.5), node(f"le {DATE}", anchor="center"))
-            pic.draw((6, -2), node(r"\qrcode{https://www.irif.fr/~alopez/}"))
-            pic.draw((6, -3.5), node(r"\url{https://www.irif.fr/~alopez/}"))
-
-            logos = [
-                "images/institutions/university_of_warsaw.pdf",
-                "images/institutions/zigmunt_zaleski_stitching.png",
-            ]
-            for i, logo in enumerate(logos):
-                pic.draw(
-                    (-4 - 3 * i, -2),
-                    node(f"\\includegraphics[width=2cm]{{{logo}}}", anchor="center"),
-                )
-
-    def __iter__(self):
-        yield (0, self)
 
 
 @dataclasses.dataclass
