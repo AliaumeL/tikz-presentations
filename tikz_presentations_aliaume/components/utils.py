@@ -64,7 +64,6 @@ class PresConfig:
     ]{{biblatex}}
     \usepackage{{hyperref}}
     \hypersetup{{
-        hidelinks,
         colorlinks,
         anchorcolor=A2,
         linkcolor=A4,
@@ -157,11 +156,11 @@ class PresConfig:
             pic.node(
                 r"\hyperlink{page-"
                 + str(j + 1)
-                + "}{\\phantom{\\rule{"
+                + "}{\\XeTeXLinkBox{\\phantom{\\rule{"
                 + lw
                 + "cm}{"
                 + lh
-                + "cm}}}",
+                + "cm}}}}",
                 align="left",
                 at=downright,
                 inner_sep="0pt",
