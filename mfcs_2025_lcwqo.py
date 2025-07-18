@@ -24,7 +24,6 @@ from dataclasses import dataclass, field
 from typing import Literal, Generator, Callable, List, Union, Tuple, Optional
 
 
-
 @dataclass
 class Vertex:
     name: str
@@ -42,13 +41,14 @@ class Vertex:
             draw=True,
             name=self.name,
             fill=self.color,
-            **self._extra
+            **self._extra,
         )
 
     def __iter__(self):
         yield (0, self)
 
-@dataclass 
+
+@dataclass
 class Edge:
     source: Union[str, Vertex]
     target: Union[str, Vertex]
@@ -73,7 +73,7 @@ class Edge:
             topath(f"({self.target_name})"),
             label=self.label or "",
             color=self.color,
-            **self._extra
+            **self._extra,
         )
 
     def __iter__(self):
@@ -84,42 +84,53 @@ class Edge:
 class Graph:
     name: str
     vertices: list[Vertex]
-    edges   : list[Edge]
-
+    edges: list[Edge]
 
     @staticmethod
-    def cycle(name : str, size: int, radius: float = 1.0) -> 'Graph':
+    def cycle(name: str, size: int, radius: float = 1.0) -> "Graph":
         vertices = [
-            Vertex(name=f"{name}v{i}", 
-                   at=(radius * math.cos(2 * math.pi * i / size),
-                       radius * math.sin(2 * math.pi * i / size)))
+            Vertex(
+                name=f"{name}v{i}",
+                at=(
+                    radius * math.cos(2 * math.pi * i / size),
+                    radius * math.sin(2 * math.pi * i / size),
+                ),
+            )
             for i in range(size)
         ]
-        edges = [Edge(source=vertices[i],
-                      target=vertices[(i + 1) % size]) for i in range(size)]
+        edges = [
+            Edge(source=vertices[i], target=vertices[(i + 1) % size])
+            for i in range(size)
+        ]
         return Graph(name, vertices, edges)
 
     @staticmethod
-    def path(name : str, length: int, spacing : float = 1.0) -> 'Graph':
+    def path(name: str, length: int, spacing: float = 1.0) -> "Graph":
         vertices = [
             Vertex(name=f"{name}v{i}", at=(i * spacing, 0)) for i in range(length)
         ]
-        edges = [Edge(source=vertices[i],
-                      target=vertices[i + 1]
-                      ) for i in range(length - 1)]
+        edges = [
+            Edge(source=vertices[i], target=vertices[i + 1]) for i in range(length - 1)
+        ]
         return Graph(name, vertices, edges)
 
     @staticmethod
-    def clique(name : str, size: int, radius : float = 1.0) -> 'Graph':
+    def clique(name: str, size: int, radius: float = 1.0) -> "Graph":
         vertices = [
-            Vertex(name=f"{name}v{i}", 
-                   at=(radius * math.cos(2 * math.pi * i / size),
-                       radius * math.sin(2 * math.pi * i / size)))
+            Vertex(
+                name=f"{name}v{i}",
+                at=(
+                    radius * math.cos(2 * math.pi * i / size),
+                    radius * math.sin(2 * math.pi * i / size),
+                ),
+            )
             for i in range(size)
         ]
-        edges = [Edge(source=vertices[i],
-                      target=vertices[j])
-                 for i in range(size) for j in range(i + 1, size)]
+        edges = [
+            Edge(source=vertices[i], target=vertices[j])
+            for i in range(size)
+            for j in range(i + 1, size)
+        ]
         return Graph(name, vertices, edges)
 
     def draw(self, pic: Picture):
@@ -129,10 +140,11 @@ class Graph:
         for e in self.edges:
             e.draw(pic)
 
-    def map(self, vfunc: Callable[[Vertex], Vertex],
-                  efunc: Callable[[Edge], Edge]) -> 'Graph':
-        new_vertices = [vfunc(i,v) for (i,v) in enumerate(self.vertices)]
-        new_edges = [efunc(i,e) for (i,e) in enumerate(self.edges)]
+    def map(
+        self, vfunc: Callable[[int, Vertex], Vertex], efunc: Callable[[int, Edge], Edge]
+    ) -> "Graph":
+        new_vertices = [vfunc(i, v) for (i, v) in enumerate(self.vertices)]
+        new_edges = [efunc(i, e) for (i, e) in enumerate(self.edges)]
         return Graph(self.name, new_vertices, new_edges)
 
     def __iter__(self):
@@ -141,15 +153,14 @@ class Graph:
 
 def example_graph_two_triangles():
     """
-        a rectangle with a diagonal edge + outer diagonal edge
+    a rectangle with a diagonal edge + outer diagonal edge
     """
     v1 = Vertex(name="v1", at=(-1, 0))
     v2 = Vertex(name="v2", at=(1, 0))
     v3 = Vertex(name="v3", at=(0, 0.5))
     v4 = Vertex(name="v4", at=(0, -0.5))
 
-    e1 = Edge(source="v1", target="v2",
-        _extra={"_in": "90", "_out": "90"})
+    e1 = Edge(source="v1", target="v2", _extra={"_in": "90", "_out": "90"})
     e2 = Edge(source="v2", target="v3")
     e3 = Edge(source="v3", target="v4")
     e4 = Edge(source="v4", target="v1")
@@ -159,7 +170,7 @@ def example_graph_two_triangles():
     return Graph("ttrig", [v1, v2, v3, v4], [e1, e2, e3, e4, e5, e6])
 
 
-@dataclass 
+@dataclass
 class Embedding:
     embedding: list[Edge]
 
@@ -174,50 +185,63 @@ class Embedding:
 @dataclass
 class TitleFrame:
     def draw(self, pic: Picture):
+        Typography(
+            text=[
+                "Labelled Well Quasi Ordered Classes",
+                "of",
+                "Bounded Linear Clique-Width",
+            ],
+            color="A4",
+            at=(0, 3),
+        ).draw(pic)
 
-        Typography(text=[
-            "Labelled Well Quasi Ordered Classes",
-            "of",
-            "Bounded Linear Clique-Width",
-        ], color="A4", at=(0,3)).draw(pic)
+        Typography(
+            text=[
+                "Aliaume Lopez",
+            ],
+            level=2,
+            color="A1",
+            at=(0, 0),
+        ).draw(pic)
 
-        Typography(text=[
-            "Aliaume Lopez",
-        ], level=2, color="A1", at=(0, 0)).draw(pic)
+        Typography(text="University of Warsaw", level=3, color="A1", at=(0, -0.5)).draw(
+            pic
+        )
 
-        Typography(text="University of Warsaw", 
-                   level=3,
-                   color="A1", at=(0, -0.5)).draw(pic)
+        Typography(
+            text=["MFCS'2025", "Warsaw, Poland"], level=4, color="A1", at=(0, -2)
+        ).draw(pic)
 
-        Typography(text=[
-                   "MFCS'2025",
-                   "Warsaw, Poland"
-                ], 
-                   level=4,
-                   color="A1", at=(0, -2)).draw(pic)
+        Image(
+            path="images/institutions/university_of_warsaw.pdf",
+            width=2.5,
+            at=(-5, -2.5),
+        ).draw(pic)
 
-
-        Image(path="images/institutions/university_of_warsaw.pdf",
-              width=2.5,
-              at=(-5, -2.5)).draw(pic)
-
-        Image(path="images/institutions/zigmunt_zaleski_stitching.png",
-              width=2.5,
-              at=(5, -2.5)).draw(pic)
-
+        Image(
+            path="images/institutions/zigmunt_zaleski_stitching.png",
+            width=2.5,
+            at=(5, -2.5),
+        ).draw(pic)
 
     def __iter__(self):
         yield (0, self)
 
 
-
-
 @dataclass
 class InducedGraph:
-    """ Draws two graphs
-        and an embedding 
-        between the nodes.
+    """Draws two graphs
+    and an embedding
+    between the nodes.
     """
+
+    graphG: Optional[Graph] = None
+    graphH: Optional[Graph] = None
+    embedding: Optional[Embedding] = None
+
+    show_embed  : bool = False
+    show_finlab : bool = False
+    show_ordlab : bool = False
 
     def draw(self, pic):
         Typography(
@@ -226,63 +250,205 @@ class InducedGraph:
             color="Prune",
             anchor="west",
             align="left",
-            at=(-9, 4)).draw(pic)
+            at=(-9, 4),
+        ).draw(pic)
+        if not (self.graphG is None and self.graphH is None):
+            Typography(
+                text=r"$\triangleright$ Graphs are undirected, without self-loops",
+                level=5,
+                color="A1",
+                anchor="west",
+                align="left",
+                at=(-9, 3),
+            ).draw(pic)
+        if self.embedding is not None:
+            Typography(
+                text=r"$\triangleright$ Embeddings represent subsets of \emph{vertices}",
+                level=5,
+                color="A1",
+                anchor="west",
+                align="left",
+                at=(-9, 2.5),
+            ).draw(pic)
+        if self.show_finlab:
+            Typography(
+                text=r"$\triangleright$ Vertices can be labelled by a finite set",
+                level=5,
+                color="A1",
+                anchor="west",
+                align="left",
+                at=(-9, 2),
+            ).draw(pic)
+        if self.show_ordlab:
+            Typography(
+                text=r"$\triangleright$ Vertices can be labelled using $(X, \leq)$",
+                level=5,
+                color="A1",
+                anchor="west",
+                align="left",
+                at=(-9, 2),
+            ).draw(pic)
 
 
+        if self.graphG is not None:
+            s1 = pic.scope(xshift="-3cm")
+            self.graphG.draw(s1)
+            Typography(text="$G$", level=4, at=(0, -1.5), color="A1").draw(s1)
 
-        g1 = Graph.cycle("g1", 3, radius=0.5)
-        g2 = example_graph_two_triangles()
+        if self.graphH is not None:
+            s2 = pic.scope(xshift="3cm")
+            Typography(text="$H$", level=4, at=(0, -1.5), color="A1").draw(s2)
+            self.graphH.draw(s2)
 
-        emb = Embedding([ 
-            Edge(source=g1.vertices[i], 
-                 target=g2.vertices[i],
-                 color="A4",
-                 directed=True,
-                _extra={"bend left": "30", "ultra thick": "true"})
-            for i in range(3)
-        ])
 
-        s1 = pic.scope(xshift="-3cm")
-        g1.draw(s1)
-        Typography(text="G1", at=(0, -1.5), color="A1").draw(s1)
-        s2 = pic.scope(xshift="3cm")
-        Typography(text="G2", at=(0, -1.5), color="A1").draw(s2)
-        g2.draw(s2)
+        if self.embedding is not None:
+            self.embedding.draw(pic)
+            Typography(text="$h$",
+                       level=4,
+                       at=(0, 2),
+                       color="A4",
+                       ).draw(pic)
+            Typography(text=r"""
+                      $(x,y) \in E(G)
+                      \iff
+                      (h(x), h(y)) \in E(H)$""",
+                      at=(0, -2.5),
+                       level=5,
+                      color="A4").draw(pic)
 
-        emb.draw(pic)
-        
+        lab = ""
+        if self.show_finlab:
+            lab = r"$\text{label}(x) = \text{label}(h(x))$"
+        elif self.show_ordlab:
+            lab = r"$\text{label}(x) \leq \text{label}(h(x))$"
+
+        if self.show_finlab or self.show_ordlab:
+            Typography(text=lab, at=(0, -3), level=5, color="C3").draw(pic)
+
 
     def __iter__(self):
         yield (0, self)
 
+        current = self
+
+        g1 = Graph.cycle("g1", 3, radius=0.5)
+        g2 = example_graph_two_triangles()
+
+        current = dataclasses.replace(current, graphH=g2)
+
+        yield (1, current)
+
+        g2col = g2.map(lambda i, v: v if i == 3 else dataclasses.replace(v, color="A1"),
+                       lambda i, e: e)
+        current = dataclasses.replace(current, graphH=g2col)
+
+        yield (2, current)
+
+        current = dataclasses.replace(current, graphG=g1)
+        yield (2, current)
+
+        emb = Embedding(
+                [
+                    Edge(source=g1.vertices[i],
+                         target=g2col.vertices[i],
+                         directed=True,
+                         color="A4",
+                         _extra={"bend left": "30", "ultra thick": "true"})
+                    for i in range(3)
+                ])
+        current = dataclasses.replace(current, embedding=emb)
+        yield (2, current)
+        current = dataclasses.replace(current, graphH=g2)
+        yield (2, current)
+        # give few other embeddings
+        # 1 -> 4, 2 -> 3, 3 -> 1
+        # 1 -> 2, 2 -> 3, 3 -> 4
+        for corr in [[4, 3, 1],[2, 3, 4],[2, 1, 3]]:
+            emb = Embedding(
+                [
+                    Edge(source=g1.vertices[i],
+                         target=g2.vertices[corr[i]-1],
+                         directed=True,
+                         color="A4",
+                         _extra={"bend left": "30", "ultra thick": "true"})
+                    for i in range(3)
+                ])
+            current = dataclasses.replace(current, embedding=emb)
+            yield (3, current)
+
+        # now add labels
+        g1lbl= g1.map(lambda i, v: dataclasses.replace(v, color="C3") if i == 2 else v,
+                      lambda i, e: e)
+        g2lbl = g2.map(lambda i, v: dataclasses.replace(v, color="C3") if i == 3 else v,
+                       lambda i, e: e)
+        current = dataclasses.replace(current, graphG=g1lbl, graphH=g2lbl,
+                                      show_finlab=True, show_ordlab=False)
+        yield (1, current)
+
+        emb = Embedding(
+                [
+                    Edge(source=g1lbl.vertices[i],
+                         target=g2lbl.vertices[j-1],
+                         directed=True,
+                         color="A4",
+                         _extra={"bend left": "30", "ultra thick": "true"})
+                    for (i, j) in zip(range(3), [4, 3, 1])
+                ])
+
+        current = dataclasses.replace(current, embedding=emb)
+        yield (2, current)
+
+        # now change the labels to be ordered
+        g1ord = g1lbl.map(lambda i, v: dataclasses.replace(v, color="white", label=f"{i}\\strut"),
+                          lambda i, e: e)
+
+        g2ord = g2lbl.map(lambda i, v: dataclasses.replace(v, color="white", label=f"{(i % 2)+2}\\strut"),
+                          lambda i, e: e)
+
+        current = dataclasses.replace(current, graphG=g1ord, graphH=g2ord,
+                                      show_finlab=False, show_ordlab=True)
+        yield (2, current)
+                            
+
+
+
 @dataclass
 class GraphsAndInducedGraphs:
     """
-        1. creates a graph
-        2. shows an induced subgraph
-        3. shows the embedding
-        4. adds labels to the graphs 
-        5. changes the embedding to work again
-        6. changes labels to be numbers
+    1. creates a graph
+    2. shows an induced subgraph
+    3. shows the embedding
+    4. adds labels to the graphs
+    5. changes the embedding to work again
+    6. changes labels to be numbers
     """
+
     pass
 
 
 def all_labels(vertices: int, labels: int) -> list[list[int]]:
     """
-        Generates all possible labelings of `vertices` vertices
-        with `labels` distinct labels.
+    Generates all possible labelings of `vertices` vertices
+    with `labels` distinct labels.
     """
     from itertools import product
-    return [list(labeling) for labeling in product(range(1, labels + 1), repeat=vertices)]
+
+    return [
+        list(labeling) for labeling in product(range(1, labels + 1), repeat=vertices)
+    ]
+
 
 @dataclass
 class FreelyLabeled:
     """
-        1. draws a triangle.
-        2. Selects labels { 1, 2, 3 }
-        3. Draws all freely labeled triangles (up to iso)
+    1. draws a triangle.
+    2. Selects labels { 1, 2, 3 }
+    3. Draws all freely labeled triangles (up to iso)
     """
+
+    graph : Optional[Graph] = None
+    cols  : Optional[list[str]] = None
+
     def draw(self, pic):
         Typography(
             text="Freely Labeled Graphs",
@@ -290,28 +456,76 @@ class FreelyLabeled:
             color="Prune",
             anchor="west",
             align="left",
-            at=(-9, 4)).draw(pic)
+            at=(-9, 4),
+        ).draw(pic)
 
-        g = Graph.cycle("g", 3, radius=0.5)
-        g.draw(pic)
+        Typography(
+            text=r"$\mathsf{Label}_X(\mathcal{C})$ is the collection of all possible $X$-labellings of graphs in $\mathcal{C}$",
+            level=5,
+            color="A1",
+            anchor="west",
+            align="left",
+            at=(-9, 3),
+        ).draw(pic)
 
-        for i, labels in enumerate(all_labels(3, 3)):
-            g.map(
-                vfunc=lambda k,v: dataclasses.replace(v, name=v.name+f"copy{i}", label=f"{labels[k]}"),
-                efunc=lambda k,e: dataclasses.replace(e, source=e.source_name+f"copy{i}", target=e.target_name+f"copy{i}")
-            ).draw(pic.scope(xshift=f"{(i // 3) * 2 - 8}cm",
-                             yshift=f"{(i % 3) * -2 + 1}cm"))
+        if self.cols is not None:
+            colored_bullets = ", ".join((
+                    f"\\textcolor{{{c}}}{{\\textbullet}}"
+                    for i, c in enumerate(self.cols, start=1)))
+            Typography(
+                text=r"""$\mathcal{C} = \{ C_3 \}$ 
+                          and $X = \{ """ + colored_bullets + r""" \}$""",
+                at=(-9, 2.5),
+                level=5,
+                color="A1",
+                anchor="west",
+                align="left",
+                ).draw(pic)
 
+
+    
+
+        if self.graph is not None and self.cols is None:
+            self.graph.draw(pic)
+
+        if self.graph is not None and self.cols is not None:
+            n = len(self.graph.vertices)
+            m = len(self.cols)
+            for i, labels in enumerate(all_labels(n, m)):
+                self.graph.map(
+                    vfunc=lambda k, v: dataclasses.replace(
+                        v, name=v.name + f"copy{i}", color=f"{self.cols[labels[k]-1]}"
+                    ),
+                    efunc=lambda k, e: dataclasses.replace(
+                        e,
+                        source=e.source_name + f"copy{i}",
+                        target=e.target_name + f"copy{i}",
+                    ),
+                ).draw(
+                    pic.scope(
+                        xshift=f"{(i // 3) * 2 - 8}cm", yshift=f"{(i % 3) * -2 + 1}cm"
+                    )
+                )
 
     def __iter__(self):
         yield (0, self)
+        current = self
+        g = Graph.cycle("triangle", 3, radius=1.0)
+        current = dataclasses.replace(current, graph=g)
+        yield (1, current)
+        gp = Graph.cycle("triangle", 3, radius=0.5)
+        current = dataclasses.replace(current, 
+                                      graph=gp,
+                                      cols=["D4", "B2", "C3"])
+        yield (1, current)
+
 
 
 @dataclass
 class GoodSequence:
-    sequence: list[Optional[Graph]]
-    increasing: Optional[tuple[int,int]] = None
-    embedding : Optional[Embedding] = None
+    sequence: list[Optional[tuple[str,Graph]]] = field(default_factory=list)
+    increasing: Optional[tuple[int, int]] = None
+    embedding: Optional[Embedding] = None
 
     def draw(self, pic: Picture):
         for i, g in enumerate(self.sequence):
@@ -319,13 +533,15 @@ class GoodSequence:
                 Typography(text="∅", at=(i * 2, 0), color="A1").draw(pic)
             else:
                 g.draw(pic.scope(xshift=f"{i * 2}cm", yshift=0))
-                Typography(text=f"G{i+1}", at=(i * 2, -1.5), color="A1").draw(pic)
+                Typography(text=f"G{i + 1}", at=(i * 2, -1.5), color="A1").draw(pic)
 
         if self.increasing is not None:
-            Typography(text="Increasing Pair", at=(self.increasing[0] * 2, 1.5), color="A4").draw(pic)
+            Typography(
+                text="Increasing Pair", at=(self.increasing[0] * 2, 1.5), color="A4"
+            ).draw(pic)
             pic.draw(
-                f"(G{self.increasing[0]+1})",
-                topath(f"(G{self.increasing[1]+1})"),
+                f"(G{self.increasing[0] + 1})",
+                topath(f"(G{self.increasing[1] + 1})"),
                 color="A4",
                 label="",
             )
@@ -337,47 +553,230 @@ class GoodSequence:
     def __iter__(self):
         yield (0, self)
 
+
 @dataclass
 class WellQuasiOrders:
     """
-        1. title of the slide
-        2. shows the definition of a good sequence
-        3. shows an example for paths 
-        4. shows non example with cycles 
-        5. defines 'labelled-wqo' as 
-           wqo for any set of labels 
-           (wqo set)
-        6. show that paths are not lwqo (not even with 2 labels)
-        7. show that cliques are lwqo (they are multisets)
+    1. title of the slide
+    2. shows the definition of a good sequence
+    3. shows an example for paths
+    4. shows non example with cycles
+    5. defines 'labelled-wqo' as
+       wqo for any set of labels
+       (wqo set)
+    6. show that paths are not lwqo (not even with 2 labels)
+    7. show that cliques are lwqo (they are multisets)
     """
-    pass
+    def draw(self, pic: Picture):
+        Typography(
+            text="Well Quasi Ordered Clases of Graphs",
+            level=1,
+            color="Prune",
+            anchor="west",
+            align="left",
+            at=(-9, 4),
+        ).draw(pic)
+
+        Typography(
+            text=r""" $\triangleright$
+            A sequence of graphs $G_1, G_2, \ldots$ is a \textbf{good sequence} if
+            there exists a pair $i < j$ such that $G_i$ \emph{embeds} in $G_j$.
+            """,
+            level=5,
+            color="A1",
+            anchor="west",
+            align="left",
+            at=(-9, 3),
+            ).draw(pic)
+
+        Typography(
+            text=r""" $\triangleright$
+            A class is \textbf{well-quasi-ordered} (wqo) if
+            every sequence is a \emph{good sequence}.
+            """,
+            level=5,
+            color="A1",
+            anchor="west",
+            align="left",
+            at=(-9, 2.5),
+            ).draw(pic)
+
+        Typography(
+            text=r""" $\triangleright$
+            A class $\mathcal{C}$ is $X$-\textbf{well-quasi-ordered} ($X$-wqo) if
+            $\mathsf{Label}_X(\mathcal{C})$ is wqo.
+            """,
+            level=5,
+            color="A1",
+            anchor="west",
+            align="left",
+            at=(-9, 2),
+            ).draw(pic)
+
+
+
+    def __iter__(self):
+        yield (0, self)
+        
+
 
 @dataclass
 class WhyDoWeCare:
     """
-        1. title
-        2. well-quasi-ordered classes
-           -> fpt membership
-           -> decidable properties (rewriting)
-           -> appear in a lot of conjectures
-        3. usually, one considers `minor` relation,
-           and uses Robertson and Seymour's
-           graph minor theorem, but sometimes we are 
-           interested in subgraphs!
+    1. title
+    2. well-quasi-ordered classes
+       -> fpt membership
+       -> decidable properties (rewriting)
+       -> appear in a lot of conjectures
+    3. usually, one considers `minor` relation,
+       and uses Robertson and Seymour's
+       graph minor theorem, but sometimes we are
+       interested in subgraphs!
     """
-    pass
+    def draw(self, pic: Picture):
+        Typography(
+            text="Why care about Well-Quasi-Ordered Classes?",
+            level=1,
+            color="Prune",
+            anchor="west",
+            align="left",
+            at=(-9, 4),
+        ).draw(pic)
+
+    def __iter__(self):
+        yield (0, self)
+
+
+@dataclass
+class PropertiesInclusions:
+    """
+        bounded tree-depth
+        bounded clique-width
+        wqo
+        2-wqo
+        label-wqo
+        wqo-wqo
+
+        inclusions are 
+        tree-depth -> clique
+        tree-depth -> wqo-wqo -> label-wqo -> 2-wqo -> wqo
+
+        draw the properties as rectangles 
+        included in one another
+    """
+    def draw(self, pic: Picture):
+        Typography(
+            text="Inclusions of Properties",
+            level=2,
+            color="Prune",
+            anchor="west",
+            align="left",
+            at=(1, 4),
+        ).draw(pic)
+
+        scope = pic.scope(yshift="-3cm", xshift="1cm")
+
+        properties = [
+            ("Tree-depth", "D2",
+             (0,0), # lower left corner of the rectangle
+             (3,1)  # upper right corner of the rectangle
+             ),
+            ("Clique-width", "C2",
+             (0,0),
+             (8,  2)),
+            ("Wqo-wqo", "A4",
+             (0,0), 
+             (3.5,  3)),
+            ("Label-wqo", "B4",
+             (0,0), 
+             (4, 4)),
+            ("2-wqo", "C4",
+             (0, 0), 
+             (4.5,  5)),
+            ("Wqo", "D4",
+             (0,0),
+             (5,  6)),
+        ]
+
+        for (prop, color, ll, ur) in reversed(properties):
+            scope.draw(ll, rectangle(ur),
+                     color=color,
+                     draw=None,
+                     fill=f"{color}hint",
+                     rounded_corners="2mm")
+        for (prop, color, ll, ur) in reversed(properties):
+            scope.draw(ll, rectangle(ur),
+                     color=color,
+                     rounded_corners="2mm")
+        for i, (prop, color, ll, ur) in enumerate(properties):
+            mid_upper = (ll[0] + (ur[0] - ll[0]) / 2, ur[1])
+            Typography(text=prop,
+                       at=mid_upper,
+                       level=5,
+                       width="2cm",
+                       _extra={"draw": color, "fill": f"{color}hint", "rounded_corners": "2mm"}
+                       ).draw(scope)
+
+        def midway_of(a,b):
+            return (
+                (a[0] + b[0]) / 2,
+                (a[1] + b[1]) / 2
+            )
+        classes = [
+            # name, point_pos, legend_pos
+            ("Independent Sets",
+             (1.5, 0.5),
+             (0, -0.5)),
+            ("Cliques",
+             (1.75, 1.5),
+             (-0.75, 1)),
+            ("Paths",
+             (4.75, 1),
+             (2, -0.5)),
+            ("Cycles",
+             (6.5, 1),
+             (5, -0.5)),
+        ]
+
+        for i, (name, point_pos, legend_pos) in enumerate(classes):
+            scope.node(
+                "",
+                at=point_pos,
+                circle=True,
+                inner_sep="1pt",
+                draw=True,
+                fill="A1",
+                color="A1",
+                name=f"cls{i}point",
+            )
+            Typography(text=name, 
+                       level=6,
+                       at=legend_pos, 
+                       color="A1",
+                       _extra={"name" : f"cls{i}label"}).draw(scope)
+            scope.draw(f"(cls{i}label)",
+                       topath(f"(cls{i}point)"),
+                       **{"->": "true",
+                          "bend left": "20",
+                          "ultra thick": "true",
+                          "color": "A1"
+                          }
+                       )
+
+
 
 @dataclass
 class RelatedWork:
     """
-        1. Pouzet's conjecture for hereditary classes
-        2. Ding'92: bounded tree-depth => label-wqo,
-        but the converse not true (cliques)
-        3. DRT'10: 
-            [conj]: 2-wqo => bounded clique-width
-            [thm] : for *some* classes of bounded clique-width,
-                    pouzet is true!
+    1. Pouzet's conjecture for hereditary classes
+    2. Ding'92: bounded tree-depth => label-wqo,
+    but the converse not true (cliques)
+    3. DRT'10:
+        [conj]: 2-wqo => bounded clique-width
+        [thm] : for *some* classes of bounded clique-width,
+                pouzet is true!
     """
+
     def draw(self, pic):
         Typography(
             text="Related Work",
@@ -385,107 +784,523 @@ class RelatedWork:
             color="Prune",
             anchor="west",
             align="left",
-            at=(-9, 4)).draw(pic)
+            at=(-9, 4),
+        ).draw(pic)
 
-        Statement(name="Conjecture [Pouzet'72]",
-                  text=r"$2$-wqo $\implies$ $\forall k \in \mathbb{N}$, $k$-wqo",
-                  at=(-9, 3),
-                  border=True,
-                  color="B4").draw(pic)
+        Statement(
+            name="Conjecture [Pouzet'72]",
+            text=r"$2$-wqo $\implies$ $\forall k \in \mathbb{N}$, $k$-wqo",
+            at=(-9, 3),
+            border=True,
+            color="B4",
+        ).draw(pic)
 
-        Statement(name="Conjecture [Pouzet'72]",
-                  text=r"$\forall k \in \mathbb{N}$, $k$-wqo $\implies$ $\forall X$, $X$-wqo",
-                  at=(3, 3),
-                  border=True,
-                  color="B4").draw(pic)
+        Statement(
+            name="Conjecture [Pouzet'72]",
+            text=r"$\forall k \in \mathbb{N}$, $k$-wqo $\implies$ $\forall X$, $X$-wqo",
+            at=(-9, 1.5),
+            border=True,
+            color="B4",
+        ).draw(pic)
+
+        Statement(
+            name="Theorem [Ding'92]",
+            text="Bounded tree-depth implies label-wqo",
+            at=(-9, 0),
+            color="A5",
+        ).draw(pic)
+
+        Statement(
+            text="the converse fails (ex: cliques)",
+            at=(-3, -0.5),
+            width=2.5,
+            border=True,
+            color="A2",
+        ).draw(pic)
+
+        Statement(
+            name="Theorem [Daligault, Rao, Thomassé'10]",
+            at=(-9, -2),
+            width=6.5,
+            text=r"For \textbf{some classes} of bounded clique-width,\newline both conjectures hold",
+            color="A5",
+        ).draw(pic)
+
+        Statement(
+            name="Conjecture [Daligault, Rao, Thomassé'10]",
+            at=(-9, -3.5),
+            width=6.5,
+            border=True,
+            text=r"$2$-wqo $\implies$ bounded clique-width",
+            color="B4",
+        ).draw(pic)
+
+        PropertiesInclusions().draw(pic)
+
+    def __iter__(self):
+        yield (0, self)
 
 
-        Statement(name="Theorem [Ding'92]",
-                  text="Bounded tree-depth implies label-wqo",
-                  at=(-9, 1.5),
-                  border=True,
-                  color="B5").draw(pic)
 
-        Statement(text="the converse fails (ex: cliques)",
-                  at=(-3, 1),
-                  width=3,
-                  border=True,
-                  color="A2").draw(pic)
+@dataclass
+class NLCExpr:
+    def to_graph(self) -> Graph:
+        """
+        Converts the NLC expression to a Graph.
+        This method should be implemented by subclasses.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
 
+    def draw_tree(self, root_pos: tuple[float, float], width: float, pic: Picture, name: str):
+        """ Draws the NLC expression as a tree. """
+        raise NotImplementedError("Subclasses must implement this method.")
+
+@dataclass
+class NLCRelabel(NLCExpr):
+    graph: NLCExpr
+    renaming: dict[str,str]
+
+    def to_graph(self) -> Graph:
+        """
+        Converts the NLCRelabel expression to a Graph.
+        It applies the renaming to the vertices of the graph produced by `from`.
+        """
+        base_graph = self.graph.to_graph()
+        recolored = [
+            dataclasses.replace(v, 
+                                color=self.renaming.get(v.color, v.color))
+            for v in base_graph.vertices
+        ]
+        return dataclasses.replace(base_graph, vertices=recolored)
+
+    def draw_tree(self, root_pos: tuple[float, float], width: float, pic: Picture, name: str):
+        sub_pos = (root_pos[0], root_pos[1] - 1)
+        self.graph.draw_tree(sub_pos, width, pic, name + "r1")
+        pic.node(
+            "R",
+            at=root_pos,
+            circle=True,
+            inner_sep="2pt",
+            draw=True,
+            name=name,
+        )
+        pic.draw(
+            f"({name}r1)",
+            topath(f"({name})"),
+            **{"->": "true", "ultra thick": "true"}
+            )
+
+@dataclass
+class NLCVertex(NLCExpr):
+    color: str
+
+    def to_graph(self) -> Graph:
+        """
+        Converts the NLCVertex expression to a Graph.
+        It creates a single vertex with the specified color.
+        """
+        return Graph(
+            name=f"vertex_{self.color}",
+            vertices=[Vertex(name=f"v_{self.color}", color=self.color)],
+            edges=[]
+        )
+
+    def draw_tree(self, root_pos: tuple[float, float], width: float, pic: Picture, name: str):
+        pic.node(
+            "",
+            at=root_pos,
+            circle=True,
+            inner_sep="2pt",
+            draw=True,
+            name=f"{name}",
+            fill=self.color
+        )
+
+@dataclass
+class NLCCombine(NLCExpr):
+    left: NLCExpr
+    right: NLCExpr
+    edges: list[tuple[str,str]] = field(default_factory=list)
+
+
+    def to_graph(self) -> Graph:
+        """
+        Converts the NLCCombine expression to a Graph.
+        It combines the graphs produced by `left` and `right` and adds edges between them.
+        """
+        left_graph = self.left.to_graph()
+        right_graph = self.right.to_graph()
+
+        def rename_vertex(v: Vertex, prefix: str) -> Vertex:
+            return dataclasses.replace(v, name=f"{prefix}x{v.name}")
+
+        def rename_edge(e: Edge, prefix: str) -> Edge:
+            return dataclasses.replace(
+                e,
+                source=f"{prefix}x{e.source_name}",
+                target=f"{prefix}x{e.target_name}"
+            )
+
+        combined_vertices = [
+                rename_vertex(v, "left_") for v in left_graph.vertices
+            ] + [ 
+                 rename_vertex(v, "right_") for v in right_graph.vertices 
+                 ]
+        combined_edges = [
+            rename_edge(e, "left_") for e in left_graph.edges
+        ] + [
+            rename_edge(e, "right_") for e in right_graph.edges
+        ]
+
+        for v1 in left_graph.vertices:
+            for v2 in right_graph.vertices:
+                c1 = v1.color
+                c2 = v2.color
+                if (c1, c2) in self.edges:
+                    combined_edges.append(
+                        Edge(
+                            source=f"left_x{v1.name}",
+                            target=f"right_x{v2.name}",
+                            color="black",
+                            directed=False
+                        )
+                    )
+
+        return Graph(
+            name=f"combine_{left_graph.name}_{right_graph.name}",
+            vertices=combined_vertices,
+            edges=combined_edges
+        )
+
+    def draw_tree(self, root_pos: tuple[float, float], width: float, pic: Picture, name: str) -> str:
+
+        subwidth = width / 2
+
+        left_root  = (root_pos[0] - subwidth, root_pos[1] - 1)
+        right_root = (root_pos[0] + subwidth, root_pos[1] - 1)
+
+        left_root_label  = name + "cl"
+        right_root_label = name + "cr"
+
+        self.left.draw_tree(left_root, subwidth, pic, left_root_label)
+        self.right.draw_tree(right_root, subwidth, pic, right_root_label)
+
+        pic.node("C",
+            at=root_pos,
+            circle=True,
+            inner_sep="2pt",
+            draw=True,
+            name=name,
+        )
+
+        pic.draw(
+            f"({left_root_label})",
+            topath(f"({name})"),
+            **{"->": "true", "bend left": "20", "ultra thick": "true"}
+        )
+     
+        pic.draw(
+            f"({right_root_label})",
+            topath(f"({name})"),
+            **{"->": "true", "bend right": "20", "ultra thick": "true"}
+        )
+
+def animate_property(obj, prop, f = lambda x: x):
+    """ 
+    essentially,
+    for (d, p) in obj.prop:
+        yield (d+1, dataclasses.replace(obj, **{prop: p}))
+    """
+    for i, value in enumerate(f(getattr(obj, prop))):
+        yield (i + 1, dataclasses.replace(obj, **{prop: value}))
+
+@dataclass
+class NLCk:
+    """
+    1. NLC(k,F) expressions to build graphs
+    2. iteratively build a finite path using
+       3 colors and one relabeling
+    3. abstract notation using a tree.
+    4. theorem of DRT'10: for these classes we decide
+    5. [thm, courcelle]: every class of bounded clique width
+    is contained in one of those
+    6. Problem: maybe all containments are bad!
+        + draw ellipses
+    7. To simplify: consider LINEAR clique-width
+    """
+
+    path_creation : Optional[int] = None
+
+    def draw(self, pic: Picture):
+        Typography(
+                r"$\mathsf{NLC}_Q^{\mathcal{F}}$ Expressions and Bounded Clique-Width",
+                level=1,
+                color="Prune",
+                anchor="west",
+                align="left",
+                at=(-9, 4),
+                ).draw(pic)
+
+        Statement(name="Relabel Expressions",
+            text=r"""
+            Select a finite set $Q$ of colors, and 
+            a finite set $\mathcal{F}$ of functions from $Q$ to $Q$.
+            \begin{itemize}
+                \item $\mathsf{vertex}(q)$ for $q \in Q$,
+                \item $\mathsf{relabel}_f(g)$ for $f \in \mathcal{F}$, $g$ an expression,
+                \item $\mathsf{combine}_P(g_1, g_2)$ for $P \subseteq Q \times Q$,
+                and $g_1, g_2$ expressions.
+            \end{itemize}
+            """,
+            at=(-9, 2),
+            width=8,).draw(pic)
+
+        # create a path. 
+        # start with nodes colored using C3,
+        # use the relabeling C3 -> A2 -> A1
+        # join using (A2, C3) always
+        relabel = { "B4": "A2", "A2": "A1" }
+        select  = [("A2", "B4")]
+
+        if self.path_creation is not None:
+            expr = NLCVertex(color="B4")
+            for i in range(self.path_creation):
+                if i % 2 == 0:
+                    expr = NLCRelabel(
+                        renaming=relabel,
+                        graph=expr
+                    )
+                else:
+                    expr = NLCCombine(
+                        left=expr,
+                        right=NLCVertex(color="B4"),
+                        edges=select
+                    )
+
+            # draw the graph
+            graph = expr.to_graph()
+            for i, v in enumerate(graph.vertices):
+                v.at = (i // 3, i % 3)
+            graph.draw(pic.scope(xshift="2cm", yshift="1cm"))
+
+            # draw the tree
+            test_scope = pic.scope(xshift="-3cm", yshift="-2cm", rotate="90", xscale=0.5)
+            expr.draw_tree(
+                root_pos=(0, 0),
+                width=5,
+                pic=test_scope,
+                name="NLCkExpr"
+            )
 
         Statement(name="Theorem [Daligault, Rao, Thomassé'10]",
-                  at=(0, -1),
-                  centered=True,
-                  width=6.5,
-                  text=r"For \textbf{some classes} of bounded clique-width,\newline both conjectures hold",
-                  color="A5").draw(pic)
-
-        Statement(name="Conjecture [Daligault, Rao, Thomassé'10]",
-                  at=(0, -2.5),
-                  width=6.5,
+                  text=r"""
+            For every $Q, \mathcal{F}$, one can decide whether 
+            $\mathsf{NLC}_Q^{\mathcal{F}}$ is 2-wqo. Furthermore,
+            the following are equivalent:
+            \begin{itemize}
+                \item $\mathsf{NLC}_Q^{\mathcal{F}}$ is 2-wqo,
+                \item $\mathsf{NLC}_Q^{\mathcal{F}}$ is wqo-wqo,
+                \item $\mathsf{NLC}_Q^{\mathcal{F}}$ does not contain
+                  arbitrarily large paths
+            \end{itemize}
+                  """,
+                  at=(-9, -2),
+                  width=8,
                   border=True,
-                  centered=True,
-                  text=r"$2$-wqo $\implies$ bounded clique-width",
-                  color="B4").draw(pic)
+                  color="A5",
+                  ).draw(pic)
+
+        Statement(name="Theorem [Courcelle]",
+                  text=r"""
+                  A class has bounded clique-width if and only if it is contained in some
+                  $\mathsf{NLC}_Q^{\mathcal{F}}$.
+                  """,
+                  at=(1, 2),
+                  width=8,
+                  border=True,
+                  color="C3",
+                  ).draw(pic)
+
+        Statement(name="Problem",
+                  text=r"""
+                  Subsets could still be WQO!
+                  """,
+                  width=8,
+                  at=(1, -2),
+                  color="A2",
+                  ).draw(pic)
+
+
+    def __iter__(self):
+        yield (0, self)
+        current = self
+        for (i, next) in animate_property(current,
+                                          "path_creation",
+                                          f=lambda x: range(0, 8)):
+            yield (i, next)
+            current = next
+        yield (0, current)
 
 
 
+@dataclass
+class Results:
+    """
+    1. linNLC(k,F,P) -> fix how you add edges once and for all
+    2. [lem]: it suffices to check pouzet's conj for these classes
+    3. [thm]: given k,F,P, one can decide whether the class is lwqo,
+        and in this case ...
+    4. [cor]: the second part of Pouzet holds!!
+    """
+    def draw(self, pic: Picture):
+        Typography(
+            text="Results",
+            level=1,
+            color="Prune",
+            anchor="west",
+            align="left",
+            at=(-9, 4),
+        ).draw(pic)
+
+        Statement(name="Setting",
+                  text=r"""
+                  We work with bounded \emph{linear} clique-width.
+                  And for that, it suffices to consider 
+                  $\mathsf{linNLC}_Q^{\mathcal{F},P}$,
+                  """,
+                  width=8,
+                  at=(-9, 2),
+                  ).draw(pic)
+
+        Statement(name="Theorem",
+                  text=r"""Given $Q, \mathcal{F}, P$, one can decide
+                  whether $\mathsf{linNLC}_Q^{\mathcal{F},P}$
+                  is $(|\mathcal{F}|^3 \times 2)$-wqo, and it is 
+                  the same as wqo-wqo.
+                  """,
+                  at=(1, 2),
+                  ).draw(pic)
+
+        Statement(name="Corollary",
+                  text=r"""Pouzet (2) holds for those classes""",
+                  at=(1, 0),
+                  ).draw(pic)
 
     def __iter__(self):
         yield (0, self)
 
 
 @dataclass
-class NLCk:
-    """
-        1. NLC(k,F) expressions to build graphs
-        2. iteratively build a finite path using 
-           3 colors and one relabeling 
-        3. abstract notation using a tree.
-        4. theorem of DRT'10: for these classes we decide
-        5. [thm, courcelle]: every class of bounded clique width
-        is contained in one of those
-        6. Problem: maybe all containments are bad!
-            + draw ellipses
-        7. To simplify: consider LINEAR clique-width
-    """
-    pass
-
-@dataclass
-class Results:
-    """
-        1. linNLC(k,F,P) -> fix how you add edges once and for all
-        2. [lem]: it suffices to check pouzet's conj for these classes
-        3. [thm]: given k,F,P, one can decide whether the class is lwqo,
-            and in this case ...
-        4. [cor]: the second part of Pouzet holds!!
-    """
-    pass
-
-@dataclass
 class ProofSketch:
     """
-        1. take a sequence of graphs
-        2. take a sequence of words that represend these graphs
-        3. transform these words into small trees (simon)
-        4. find increasing pairs of small trees (higman)
-        5. conclude that you have found an increasing pair of 
-           graphs (lemma: works if and only if you are 
-           |M|^3 × 2 WQO)
+    1. take a sequence of graphs
+    2. take a sequence of words that represend these graphs
+    3. transform these words into small trees (simon)
+    4. find increasing pairs of small trees (higman)
+    5. conclude that you have found an increasing pair of
+       graphs (lemma: works if and only if you are
+       |M|^3 × 2 WQO)
     """
-    pass
+    def draw(self, pic: Picture):
+        Typography(
+            text="Proof Sketch",
+            level=1,
+            color="Prune",
+            anchor="west",
+            align="left",
+            at=(-9, 4),
+        ).draw(pic)
+
+    def __iter__(self):
+        yield (0, self)
+
+
 
 @dataclass
 class Conclusion:
     """
-        1. Closer to Pouzet's conjecture + **DECIDABLE**
-        2. We can go to 2-wqo by a finer analysis of the proof
-        3. We can go to trees, by replacing 
-        all word-based theorems by their tree-based versions
-        (Higman -> Kruskal, Simon -> Colcombet)
-        4. Can we go beyond graphs?
+    1. Closer to Pouzet's conjecture + **DECIDABLE**
+    2. We can go to 2-wqo by a finer analysis of the proof
+    3. We can go to trees, by replacing
+    all word-based theorems by their tree-based versions
+    (Higman -> Kruskal, Simon -> Colcombet)
+    4. Can we go beyond graphs?
     """
-    pass
+
+    def draw(self, pic: Picture):
+        Typography(
+            text="Conclusion(s)",
+            level=1,
+            color="Prune",
+            anchor="west",
+            align="left",
+            at=(-9, 4),
+        ).draw(pic)
+
+        pic.draw((-2.5, 3.5),
+                 rectangle((8, -4.3)),
+                 color="A4",
+                 fill="A4hint",
+                 rounded_corners="2mm")
+        pic.node("Future Work",
+                 draw="A4",
+                 font=r"\scshape",
+                 fill="A4hint",
+                 rounded_corners="2mm",
+                 at=(2.75, 3.5))
+
+        Statement(name="Theorem",
+                  at=(-9, 3),
+                  color="B3",
+                  text=r"""Half of Pouzet's conjecture holds for
+                  classes of bounded linear clique-width: $\forall k$ $\implies$ $\forall X$""").draw(pic)
+
+        Statement(name="Remark",
+                  at=(-9, 1),
+                  color="C3",
+                  text=r"""The proof of Daligault, Rao, and Thomassé
+                  follows from our analysis""").draw(pic)
+
+        Statement(name="Motto",
+                  at=(-9, -1),
+                  color="A1",
+                  text=r"""Automata / Semigroup theory applied to well-quasi-orders and structural properties of graph classes""").draw(pic)
+
+
+        Statement(name="Towards 2-wqo", 
+                  at=(-2, 3),
+                  width=9,
+                  color="A4",
+                  text=r"""Better analysis of the proof should lead to 2-wqo""").draw(pic)
+
+        Statement(name="Towards trees",
+                  at=(-2, 1),
+                  color="A4",
+                  width=9,
+                  text=r"""
+                  Higman'lemma $\longrightarrow$ Kruskal's tree theorem
+                  \newline
+                  Simon's word factorisation $\longrightarrow$ Colcombet's tree factorization
+                  """).draw(pic)
+
+        Statement(name="Interpretations",
+                  at=(-2, -1),
+                  color="B4",
+                  width=9,
+                  text=r"""
+                  It is conjectured that for all classes $\mathcal{C}$:
+                  \newline
+                  $\mathcal{C}$ is 2-wqo
+                  \newline
+                  $\iff$
+                  \newline
+                  for every existential formula $\phi(x,y)$,
+                  there is a bound on the lengths of the paths
+                  that $\phi(x,y)$ defines in $\mathcal{C}$.
+                  """).draw(pic)
+
+    def __iter__(self):
+        yield (0, self)
 
 
 if __name__ == "__main__":
@@ -493,20 +1308,16 @@ if __name__ == "__main__":
     tt = TitleFrame()
     ic = InducedGraph()
     fl = FreelyLabeled()
-    gs = GoodSequence(
-            sequence=[ Graph.clique(f"c{i}", i + 3, radius=0.5) for i in range(1, 3) ] 
-                     + [ None ]
-                     + [ Graph.clique(f"p{i}", i + 2, radius=0.5) for i in range(1, 3) ]
-                     + [ None ]
-                     + [ Graph.clique(f"k{i}", i + 2, radius=0.5) for i in range(1, 3) ]
-                     + [ None ],
-            increasing=None,
-            embedding=None)
-
+    gs = GoodSequence()
+    wo = WellQuasiOrders()
+    wd = WhyDoWeCare()
     rw = RelatedWork()
+    nl = NLCk()
+    ps = ProofSketch()
+    cc = Conclusion()
 
     cfg = PresConfig(
-        title="Polyczek",
+        title="Labelled Well Quasi Ordered Classes of Bounded Linear Clique-Width",
         author="Aliaume Lopez",
         location="MFCS",
         date="2025-06-13",
@@ -515,11 +1326,16 @@ if __name__ == "__main__":
 
     frames_list = [
         tc,
-        #tt,
-        #ic,
-        #fl,
-        #gs,
-        rw  
+        tt,
+        ic,
+        fl,
+        gs,
+        wo,
+        wd,
+        rw,
+        nl,
+        ps,
+        cc
     ]
 
     frames = Sequential(frames_list, pos=0)
