@@ -553,7 +553,6 @@ class GoodSequence:
     def __iter__(self):
         yield (0, self)
 
-
 @dataclass
 class WellQuasiOrders:
     """
@@ -567,6 +566,13 @@ class WellQuasiOrders:
     6. show that paths are not lwqo (not even with 2 labels)
     7. show that cliques are lwqo (they are multisets)
     """
+
+    show_sequence: bool = False
+    show_wqo     : bool = False
+    show_non_wqo : bool = False
+    show_lwqo    : bool = False
+    show_exs     : bool = False
+
     def draw(self, pic: Picture):
         Typography(
             text="Well Quasi Ordered Clases of Graphs",
@@ -577,46 +583,93 @@ class WellQuasiOrders:
             at=(-9, 4),
         ).draw(pic)
 
-        Typography(
-            text=r""" $\triangleright$
-            A sequence of graphs $G_1, G_2, \ldots$ is a \textbf{good sequence} if
-            there exists a pair $i < j$ such that $G_i$ \emph{embeds} in $G_j$.
-            """,
-            level=5,
-            color="A1",
-            anchor="west",
-            align="left",
-            at=(-9, 3),
-            ).draw(pic)
+        if self.show_sequence:
+            Typography(
+                text=r""" $\triangleright$
+                A sequence of graphs $G_1, G_2, \ldots$ is a \textbf{good sequence} if
+                there exists a pair $i < j$ such that $G_i$ \emph{embeds} in $G_j$.
+                """,
+                level=5,
+                color="A1",
+                anchor="west",
+                align="left",
+                at=(-9, 3),
+                ).draw(pic)
 
-        Typography(
-            text=r""" $\triangleright$
-            A class is \textbf{well-quasi-ordered} (wqo) if
-            every sequence is a \emph{good sequence}.
-            """,
-            level=5,
-            color="A1",
-            anchor="west",
-            align="left",
-            at=(-9, 2.5),
-            ).draw(pic)
+        if self.show_wqo:
+            Typography(
+                text=r""" $\triangleright$
+                A class is \textbf{well-quasi-ordered} (wqo) if
+                every sequence is a \emph{good sequence}.
+                """,
+                level=5,
+                color="A1",
+                anchor="west",
+                align="left",
+                at=(-9, 2.5),
+                ).draw(pic)
 
-        Typography(
-            text=r""" $\triangleright$
-            A class $\mathcal{C}$ is $X$-\textbf{well-quasi-ordered} ($X$-wqo) if
-            $\mathsf{Label}_X(\mathcal{C})$ is wqo.
-            """,
-            level=5,
-            color="A1",
-            anchor="west",
-            align="left",
-            at=(-9, 2),
-            ).draw(pic)
+        if self.show_lwqo:
+            Typography(
+                text=r""" $\triangleright$
+                A class $\mathcal{C}$ is $X$-\textbf{well-quasi-ordered} ($X$-wqo) if
+                $\mathsf{Label}_X(\mathcal{C})$ is wqo.
+                """,
+                level=5,
+                color="A1",
+                anchor="west",
+                align="left",
+                at=(-9, 2),
+                ).draw(pic)
 
 
+        if self.show_sequence:
+            seq = ["0", "1", "2", None, "i", None, "j", None]
+            sc  = pic.scope(xshift="-7cm", yshift="-0.5cm")
+            for (i, s) in enumerate(seq):
+                if s is None:
+                    sc.node(r"$\cdots$",
+                             at=(i * 2, 0))
+                else:
+                    sc.node(r"$G_{%s}$" % s,
+                             at=(i * 2, 0),
+                             name=f"g{i}")
+
+                    if self.show_non_wqo:
+                        ci = Graph.cycle(f"g{i}graph", (i+3), radius=0.5)
+                        ci.draw(sc.scope(xshift=f"{i * 2}cm", yshift="1cm"))
+
+
+                    if self.show_wqo:
+                        pi = Graph.path(f"g{i}graph", (i+1), spacing=0.5)
+                        pi.draw(sc.scope(xshift=f"{i * 2}cm", yshift="1cm"))
+
+            if self.show_wqo:
+                pic.draw("(g4)", topath("(g6)"),
+                         _in="-90",
+                         _out="-90",
+                         **{ "->": True })
+
+        if self.show_exs:
+            Statement(name="Examples",
+                      text=r"""Cycles (NO), Paths (YES), Colored paths (NO), Cliques (YES)""",
+                      at=(-9, -3),
+                      ).draw(pic)
 
     def __iter__(self):
-        yield (0, self)
+        current = self
+        yield (0, current)
+        current = dataclasses.replace(current, show_sequence=True)
+        yield (1, current)
+        current = dataclasses.replace(current, show_non_wqo=True)
+        yield (1, current)
+        current = dataclasses.replace(current, show_wqo=True, show_non_wqo=False)
+        yield (1, current)
+        current = dataclasses.replace(current, show_lwqo=True)
+        yield (1, current)
+        current = dataclasses.replace(current, show_exs=True)
+        yield (1, current)
+
         
 
 
@@ -633,6 +686,7 @@ class WhyDoWeCare:
        graph minor theorem, but sometimes we are
        interested in subgraphs!
     """
+    show_uses: bool = False
     def draw(self, pic: Picture):
         Typography(
             text="Why care about Well-Quasi-Ordered Classes?",
@@ -643,8 +697,28 @@ class WhyDoWeCare:
             at=(-9, 4),
         ).draw(pic)
 
+        imgs = [
+            ("./images/science/cox_little_shea.jpg", "4", "Algebra"),
+            ("./images/science/graph_minor.png", "4", "Graph Minors"),
+            ("./images/science/petri_net.png", "4", "Transition Systems"),
+        ]
+
+        grid = [(6, 0), (0, 0), (-5, -2)]
+
+        if self.show_uses:
+            for (path, width, legend), pos in zip(imgs, grid):
+                pic.node(
+                    r"\includegraphics[width=" + width + r"cm]{" + path + r"}", at=pos
+                )
+                pic.node(legend, at=pos, fill="white", draw=True, thick=True)
+
+
+
     def __iter__(self):
         yield (0, self)
+        current = self
+        current = dataclasses.replace(current, show_uses=True)
+        yield (1, current)
 
 
 @dataclass
@@ -664,6 +738,9 @@ class PropertiesInclusions:
         draw the properties as rectangles 
         included in one another
     """
+    show_props  : list[str] = field(default_factory=list)
+    show_classes: list[str] = field(default_factory=list)
+
     def draw(self, pic: Picture):
         Typography(
             text="Inclusions of Properties",
@@ -697,6 +774,9 @@ class PropertiesInclusions:
              (0,0),
              (5,  6)),
         ]
+
+        properties = [ p for p in properties
+                      if p[0] in self.show_props ]
 
         for (prop, color, ll, ur) in reversed(properties):
             scope.draw(ll, rectangle(ur),
@@ -738,6 +818,9 @@ class PropertiesInclusions:
              (5, -0.5)),
         ]
 
+        classes = [ c for c in classes
+                   if c[0] in self.show_classes ]
+
         for i, (name, point_pos, legend_pos) in enumerate(classes):
             scope.node(
                 "",
@@ -764,7 +847,6 @@ class PropertiesInclusions:
                        )
 
 
-
 @dataclass
 class RelatedWork:
     """
@@ -777,6 +859,11 @@ class RelatedWork:
                 pouzet is true!
     """
 
+    inclusions : Optional[PropertiesInclusions] = None
+    show_pouzet: bool = False
+    show_ding  : bool = False
+    show_drt   : bool = False
+
     def draw(self, pic):
         Typography(
             text="Related Work",
@@ -787,58 +874,90 @@ class RelatedWork:
             at=(-9, 4),
         ).draw(pic)
 
-        Statement(
-            name="Conjecture [Pouzet'72]",
-            text=r"$2$-wqo $\implies$ $\forall k \in \mathbb{N}$, $k$-wqo",
-            at=(-9, 3),
-            border=True,
-            color="B4",
-        ).draw(pic)
 
-        Statement(
-            name="Conjecture [Pouzet'72]",
-            text=r"$\forall k \in \mathbb{N}$, $k$-wqo $\implies$ $\forall X$, $X$-wqo",
-            at=(-9, 1.5),
-            border=True,
-            color="B4",
-        ).draw(pic)
+        if self.show_pouzet:
 
-        Statement(
-            name="Theorem [Ding'92]",
-            text="Bounded tree-depth implies label-wqo",
-            at=(-9, 0),
-            color="A5",
-        ).draw(pic)
+            Statement(
+                name="Conjecture [Pouzet'72]",
+                text=r"$2$-wqo $\implies$ $\forall k \in \mathbb{N}$, $k$-wqo",
+                at=(-9, 3),
+                border=True,
+                color="B4",
+            ).draw(pic)
 
-        Statement(
-            text="the converse fails (ex: cliques)",
-            at=(-3, -0.5),
-            width=2.5,
-            border=True,
-            color="A2",
-        ).draw(pic)
+            Statement(
+                name="Conjecture [Pouzet'72]",
+                text=r"$\forall k \in \mathbb{N}$, $k$-wqo $\implies$ $\forall X$, $X$-wqo",
+                at=(-9, 1.5),
+                border=True,
+                color="B4",
+            ).draw(pic)
 
-        Statement(
-            name="Theorem [Daligault, Rao, Thomassé'10]",
-            at=(-9, -2),
-            width=6.5,
-            text=r"For \textbf{some classes} of bounded clique-width,\newline both conjectures hold",
-            color="A5",
-        ).draw(pic)
+        if self.show_ding:
 
-        Statement(
-            name="Conjecture [Daligault, Rao, Thomassé'10]",
-            at=(-9, -3.5),
-            width=6.5,
-            border=True,
-            text=r"$2$-wqo $\implies$ bounded clique-width",
-            color="B4",
-        ).draw(pic)
+            Statement(
+                name="Theorem [Ding'92]",
+                text="Bounded tree-depth implies label-wqo",
+                at=(-9, 0),
+                color="A5",
+            ).draw(pic)
 
-        PropertiesInclusions().draw(pic)
+            Statement(
+                text="the converse fails (ex: cliques)",
+                at=(-3, -0.5),
+                width=2.5,
+                border=True,
+                color="A2",
+            ).draw(pic)
+
+        if self.show_drt:
+
+            Statement(
+                name="Theorem [Daligault, Rao, Thomassé'10]",
+                at=(-9, -2),
+                width=6.5,
+                text=r"For \textbf{some classes} of bounded clique-width,\newline both conjectures hold",
+                color="A5",
+            ).draw(pic)
+
+            Statement(
+                name="Conjecture [Daligault, Rao, Thomassé'10]",
+                at=(-9, -3.5),
+                width=6.5,
+                border=True,
+                text=r"$2$-wqo $\implies$ bounded clique-width",
+                color="B4",
+            ).draw(pic)
+
+        if self.inclusions is not None:
+            self.inclusions.draw(pic)
 
     def __iter__(self):
-        yield (0, self)
+        current = self
+        yield (0, current)
+        incls = PropertiesInclusions()
+        props = ["Wqo", "2-wqo", "Label-wqo", "Wqo-wqo"]
+        clss  = []
+        incls = dataclasses.replace(incls,
+                                    show_props=props,
+                                    show_classes=clss)
+        current = dataclasses.replace(current, inclusions=incls)
+        yield (1, current)
+        current = dataclasses.replace(current, show_pouzet=True)
+        yield (1, current)
+        current = dataclasses.replace(current, show_ding=True)
+        props.append("Tree-depth")
+        clss.append("Cliques")
+        clss.append("Independent Sets")
+        yield (1, current)
+        current = dataclasses.replace(current, show_drt=True)
+        props.append("Clique-width")
+        clss.append("Paths")
+        clss.append("Cycles")
+        yield (1, current)
+
+
+
 
 
 
@@ -1014,6 +1133,15 @@ def animate_property(obj, prop, f = lambda x: x):
     for i, value in enumerate(f(getattr(obj, prop))):
         yield (i + 1, dataclasses.replace(obj, **{prop: value}))
 
+def set_to_true(obj, props):
+    """
+    iteratively sets to true the properties in `props`
+    """
+    current = obj
+    for prop in props:
+        current = dataclasses.replace(current, **{prop: True})
+        yield (0, current)
+
 @dataclass
 class NLCk:
     """
@@ -1030,6 +1158,9 @@ class NLCk:
     """
 
     path_creation : Optional[int] = None
+    show_drt : bool = False
+    show_cou : bool = False
+    show_prb : bool = False
 
     def draw(self, pic: Picture):
         Typography(
@@ -1052,7 +1183,7 @@ class NLCk:
                 and $g_1, g_2$ expressions.
             \end{itemize}
             """,
-            at=(-9, 2),
+            at=(-9, 3.5),
             width=8,).draw(pic)
 
         # create a path. 
@@ -1092,43 +1223,46 @@ class NLCk:
                 name="NLCkExpr"
             )
 
-        Statement(name="Theorem [Daligault, Rao, Thomassé'10]",
-                  text=r"""
-            For every $Q, \mathcal{F}$, one can decide whether 
-            $\mathsf{NLC}_Q^{\mathcal{F}}$ is 2-wqo. Furthermore,
-            the following are equivalent:
-            \begin{itemize}
-                \item $\mathsf{NLC}_Q^{\mathcal{F}}$ is 2-wqo,
-                \item $\mathsf{NLC}_Q^{\mathcal{F}}$ is wqo-wqo,
-                \item $\mathsf{NLC}_Q^{\mathcal{F}}$ does not contain
-                  arbitrarily large paths
-            \end{itemize}
-                  """,
-                  at=(-9, -2),
-                  width=8,
-                  border=True,
-                  color="A5",
-                  ).draw(pic)
+        if self.show_drt:
+            Statement(name="Theorem [Daligault, Rao, Thomassé'10]",
+                      text=r"""
+                For every $Q, \mathcal{F}$, one can decide whether 
+                $\mathsf{NLC}_Q^{\mathcal{F}}$ is 2-wqo. Furthermore,
+                the following are equivalent:
+                \begin{itemize}
+                    \item $\mathsf{NLC}_Q^{\mathcal{F}}$ is 2-wqo,
+                    \item $\mathsf{NLC}_Q^{\mathcal{F}}$ is wqo-wqo,
+                    \item $\mathsf{NLC}_Q^{\mathcal{F}}$ does not contain
+                      arbitrarily large paths
+                \end{itemize}
+                      """,
+                      at=(-9, 0),
+                      width=8,
+                      border=True,
+                      color="A5",
+                      ).draw(pic)
 
-        Statement(name="Theorem [Courcelle]",
-                  text=r"""
-                  A class has bounded clique-width if and only if it is contained in some
-                  $\mathsf{NLC}_Q^{\mathcal{F}}$.
-                  """,
-                  at=(1, 2),
-                  width=8,
-                  border=True,
-                  color="C3",
-                  ).draw(pic)
+        if self.show_cou:
+            Statement(name="Theorem [Courcelle]",
+                      text=r"""
+                      A class has bounded clique-width if and only if it is contained in some
+                      $\mathsf{NLC}_Q^{\mathcal{F}}$.
+                      """,
+                      at=(1, 3.5),
+                      width=8,
+                      border=True,
+                      color="C3",
+                      ).draw(pic)
 
-        Statement(name="Problem",
-                  text=r"""
-                  Subsets could still be WQO!
-                  """,
-                  width=8,
-                  at=(1, -2),
-                  color="A2",
-                  ).draw(pic)
+        if self.show_prb:
+            Statement(name="Problem",
+                      text=r"""
+                      Subsets could still be WQO!
+                      """,
+                      width=8,
+                      at=(1, 0),
+                      color="A2",
+                      ).draw(pic)
 
 
     def __iter__(self):
@@ -1139,7 +1273,13 @@ class NLCk:
                                           f=lambda x: range(0, 8)):
             yield (i, next)
             current = next
-        yield (0, current)
+        current = dataclasses.replace(current, show_drt=True)
+        yield (1, current)
+        current = dataclasses.replace(current, show_cou=True)
+        yield (1, current)
+        current = dataclasses.replace(current, show_prb=True)
+        yield (1, current)
+
 
 
 
@@ -1152,6 +1292,10 @@ class Results:
         and in this case ...
     4. [cor]: the second part of Pouzet holds!!
     """
+    show_setting: bool = False
+    show_theorem: bool = False
+    show_lemma  : bool = False
+    show_cor    : bool = False
     def draw(self, pic: Picture):
         Typography(
             text="Results",
@@ -1162,32 +1306,62 @@ class Results:
             at=(-9, 4),
         ).draw(pic)
 
-        Statement(name="Setting",
-                  text=r"""
-                  We work with bounded \emph{linear} clique-width.
-                  And for that, it suffices to consider 
-                  $\mathsf{linNLC}_Q^{\mathcal{F},P}$,
-                  """,
-                  width=8,
-                  at=(-9, 2),
-                  ).draw(pic)
+        if self.show_setting:
+            Statement(name="Setting",
+                      text=r"""
+                      We restrict ourselves to the \textbf{linear} NLC expressions,
+                      and we fix how we add edges once and for all:
+                      \begin{equation*}
+                      \mathsf{linNLC}_Q^{\mathcal{F},P}
+                      \end{equation*}
+                      """,
+                      width=8,
+                      border=True,
+                      color="C1",
+                      at=(-9, 3),
+                      ).draw(pic)
 
-        Statement(name="Theorem",
-                  text=r"""Given $Q, \mathcal{F}, P$, one can decide
-                  whether $\mathsf{linNLC}_Q^{\mathcal{F},P}$
-                  is $(|\mathcal{F}|^3 \times 2)$-wqo, and it is 
-                  the same as wqo-wqo.
-                  """,
-                  at=(1, 2),
-                  ).draw(pic)
+        if self.show_theorem:
+            Statement(name="Theorem",
+                      text=r"""Given $Q, \mathcal{F}, P$, the following
+                      properties are equivalent and \textbf{decidable}:
+                      \begin{itemize}
+                      \item $\mathsf{linNLC}_Q^{\mathcal{F},P}$ is wqo-wqo,
+                      \item $\mathsf{linNLC}_Q^{\mathcal{F},P}$ is labelled-wqo,
+                      \item $\mathsf{linNLC}_Q^{\mathcal{F},P}$ is $(|\mathcal{F}|^3 \times 2)$-wqo.
+                      \end{itemize}
+                      """,
+                      at=(1, 3),
+                      width=8,
+                      color="D2",
+                      ).draw(pic)
 
-        Statement(name="Corollary",
-                  text=r"""Pouzet (2) holds for those classes""",
-                  at=(1, 0),
-                  ).draw(pic)
+        if self.show_lemma:
+            Statement(name="Lemma",
+                      text=r"""It suffices to consider $\mathsf{linNLC}_Q^{\mathcal{F},P}$
+                      to talk about any class of \textbf{bounded linear clique-width}.""",
+                      at=(-9, -1),
+                      color="A5",
+                      width=8,
+                      ).draw(pic)
+
+        if self.show_cor:
+            Statement(name="Corollary",
+                      text=r"""For all classes $\mathcal{C}$ of bounded linear clique-width,
+                      $\mathcal{C}$ is wqo-wqo if and only if 
+                      it is labelled-wqo.
+                      """,
+                      at=(1, -1),
+                      width=8,
+                      color="A2",
+                      ).draw(pic)
 
     def __iter__(self):
         yield (0, self)
+        for (i, next) in set_to_true(self, [
+            "show_setting", "show_theorem", "show_lemma", "show_cor"
+        ]):
+            yield (i + 1, next)
 
 
 @dataclass
@@ -1201,6 +1375,11 @@ class ProofSketch:
        graphs (lemma: works if and only if you are
        |M|^3 × 2 WQO)
     """
+    show_gis: bool = False
+    show_wis: bool = False
+    show_tis: bool = False
+    show_inc: bool = False
+    show_iss: bool = False
     def draw(self, pic: Picture):
         Typography(
             text="Proof Sketch",
@@ -1211,8 +1390,102 @@ class ProofSketch:
             at=(-9, 4),
         ).draw(pic)
 
+        if self.show_wis:
+            pic.node(r"$\exists$",
+                        color="C3",
+                     at=(-8, 0.6))
+
+        if self.show_tis:
+            pic.node(r"$\exists$",
+                        color="A5",
+                     at=(-8, 1.8))
+        if self.show_gis:
+            pic.node(r"$\forall$",
+                     at=(-8, -0.5))
+
+        if self.show_gis: 
+            seq = ["0", "1", "2", None, "i", None, "j", None]
+            sc  = pic.scope(xshift="-7cm", yshift="-0.5cm")
+            for (i, s) in enumerate(seq):
+                if s is None:
+                    sc.node(r"$\cdots$",
+                             at=(i * 2, 0))
+                else:
+                    sc.node(r"$G_{%s}$" % s,
+                             at=(i * 2, 0),
+                             name=f"g{i}")
+                    scc = sc.scope(yshift="1.5cm", xshift=f"{i * 2}cm")
+
+                    if self.show_wis:
+                        sc.node(r"$w_{%s}$" % s,
+                                name=f"w{i}",
+                                color="C3",
+                                at=(i * 2, 0.7))
+                        scc.draw((-0.3, -0.3), rectangle((0.3, -0.4)),
+                                 fill="C3")
+
+                    if self.show_tis:
+                        scc.draw((-0.3,0), topath((0.3, 0)),
+                                 topath((0, 0.5)),
+                                 topath((-0.3, 0)),
+                                 fill="A5")
+                        sc.node(r"$t_{%s}$" % s,
+                                name=f"t{i}",
+                                at=(i * 2, 2.4),
+                                color="A5",
+                                )
+            
+            if self.show_gis and self.show_iss:
+                pic.draw("(g4)", topath("(g6)"),
+                         _in="-90",
+                         _out="-90",
+                         color="B5",
+                         **{ "->": True, "dashed": True, "ultra thick": True })
+
+                Typography(text="Main issue",
+                          at=(3,-2),
+                           level=5,
+                           _extra={"draw": "B5", "fill": "B5hint", "rounded_corners": "2mm"}
+                          ).draw(pic)
+
+            if self.show_tis and self.show_inc:
+                pic.draw("(t4)", topath("(t6)"),
+                         _in="90",
+                         _out="90",
+                         color="A2",
+                         **{ "->": True, "ultra thick": True })
+
+        
+        if self.show_wis:
+            Statement(name="By definition",
+                      text=r"$\forall G_i, \exists w_i$",
+                      at=(-8,-2),
+                      width=4,
+                      color="C3",
+                      ).draw(pic)
+        if self.show_tis:
+            Statement(name="Theorem [Simon]",
+                      text=r"$\forall w_i, \exists t_i$",
+                      at=(-2, -2),
+                      width=4,
+                      color="A5",
+                      ).draw(pic)
+        if self.show_inc:
+            Statement(name="Theorem [Higman]",
+                      text=r"$\exists i < j, t_i \leq t_j$",
+                      at=(5,-2),
+                      width=4,
+                      color="A2",
+                      ).draw(pic)
+
+
+
     def __iter__(self):
         yield (0, self)
+        for (d, next) in set_to_true(self, [
+            "show_gis", "show_wis", "show_tis", "show_inc", "show_iss"
+        ]):
+            yield (d+1, next)
 
 
 
@@ -1313,6 +1586,7 @@ if __name__ == "__main__":
     wd = WhyDoWeCare()
     rw = RelatedWork()
     nl = NLCk()
+    rs = Results()
     ps = ProofSketch()
     cc = Conclusion()
 
@@ -1321,19 +1595,18 @@ if __name__ == "__main__":
         author="Aliaume Lopez",
         location="MFCS",
         date="2025-06-13",
-        draft=True,
+        draft=False,
     )
 
     frames_list = [
-        tc,
         tt,
         ic,
         fl,
-        gs,
         wo,
         wd,
         rw,
         nl,
+        rs,
         ps,
         cc
     ]
