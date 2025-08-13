@@ -467,7 +467,7 @@ class InducedGraph:
                     color="C2",
                     _extra={bending(i): "30", "ultra thick": "true"},
                 )
-                for (i, j) in zip(range(3), [4, 3, 1])
+                for (i, j) in zip(range(3), [1, 3, 4])
             ]
         )
 
@@ -723,7 +723,7 @@ class WellQuasiOrders:
             if self.show_wqo:
                 pic.draw("(g4)", topath("(g6)"), _in="-90", _out="-90", **{"->": True})
                 Typography(text="Good Sequence",
-                           at=(0, 0.5),
+                           at=(3, 2),
                            level=1,
                            color="A5",
                            _extra={"draw": "A5", "fill": "A5hint", "rounded_corners": "2mm"}
@@ -731,7 +731,7 @@ class WellQuasiOrders:
 
             if self.show_non_wqo:
                 Typography(text="Bad Sequence",
-                           at=(0, 0.5),
+                           at=(3, 2),
                            level=1,
                            color="A2",
                            _extra={"draw": "A2", "fill": "A2hint", "rounded_corners": "2mm"}
